@@ -6,7 +6,9 @@ This works only for Windows 10 64 bit.
 
 ## Installation
 
-1. my personal preference to install addons: create a folder called 'blender' inside documents (or any other for you suitable location) and create the following folder structure inside:
+my personal preference to install addons:
+
+1. create a folder called 'blender' inside documents (or any other name at a suitable location) and create the following folder structure inside:
 
   * scripts
     * addons
@@ -14,15 +16,17 @@ This works only for Windows 10 64 bit.
 
 2. [download](https://github.com/maybites/blender.script.spout/releases) the addon, unzip it and drop the 'spout' folder inside the addons-folder
 
-3. [download](https://github.com/maybites/Spout-for-Python/blob/master/Library/SpoutSDK.pyd) the SpoutSDK-library and drop it inside the modules-folder.
+3. [download](https://github.com/maybites/Spout-for-Python/blob/master/Library/SpoutSDK.pyd) the Python SpoutSDK-library and drop it inside the modules-folder.
 
 (if somebody knows a better way to deal with the library, please let me know, but putting it next to the _init__ files doesn't work)
 
-4. inside blender: Menu > Edit > Preferences > FilePaths > Data > Scripts >  select the 'scripts' folder you created above.
+inside blender:
+
+4. Menu > Edit > Preferences > FilePaths > Data > Scripts >  select the 'scripts' folder you created above.
 
 5. restart blender.
 
-6. inside blender: Menu > Edit > Preferences > Add-addons
+6. Menu > Edit > Preferences > Add-addons
 
 7. Select tab 'TESTING'. you should now see the plugin called 'Render: Spout'
 
@@ -45,13 +49,16 @@ The render settings are currently taken from the main 3d View settings.
 
 ## Issues
 
-* Some Nvdia GFX-cards have a problem when in EEVEE the render method is set to 'LookDev' and 'Rendered'. There is bug report open where you can add your hardware specs if you encounter this issue.
+* Some Nvdia GFX-cards have a rendering problem in EEVEE when the render method is set to 'LookDev' and 'Rendered'. There is a [bug report](https://developer.blender.org/T61768) open where you can add your hardware specs if you encounter this issue.
 
 
 ## Syphon
 
-No, this addon is unable to stream syhon on OSX. But I had a chat with the syphon developers and it is feasible to make it happen, too. The only thing that is needed is a Objective-C -> Python wrapper. But unfortunately this is beyond my development abilities. If you think you have the necessary skills, please contact me. I would like to see Syphon for Blender happening, too.
+No, this addon is unable to stream [syphon](http://syphon.v002.info/) on OSX. But I had a chat with the syphon developers and it is feasible to make it happen, too. The only thing that is needed is an Objective-C -> Python wrapper, which is doable. But unfortunately this is beyond my development abilities. If you think you have the necessary skills, please contact me. I would like to see Syphon for Blender happening, too.
 
 ## Credits
 
-Without the [Spout for Python library](https://github.com/maybites/Spout-for-Python) developed by Ryan Walker and the valuable [hint](https://docs.blender.org/api/blender2.8/gpu.html#rendering-the-3d-view-into-a-texture) from Jonas Dichelle I would still dab into darkness...
+Blender Plugin by Martin Froehlich.
+
+### Special Thanks:
+Obviously Lyn Jarvis for developing Spout in the first place. And without the [Spout for Python library](https://github.com/maybites/Spout-for-Python) developed by Ryan Walker and the valuable [hint](https://docs.blender.org/api/blender2.8/gpu.html#rendering-the-3d-view-into-a-texture) from Jonas Dichelle I would still dab in darkness...
