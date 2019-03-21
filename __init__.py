@@ -27,8 +27,6 @@ bl_info = {
 
 import bpy
 from bpy.types import Panel
-from rna_prop_ui import PropertyPanel
-from bl_operators.presets import PresetMenu
 
 import SpoutSDK
 import bgl
