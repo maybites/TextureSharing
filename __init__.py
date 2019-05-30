@@ -47,7 +47,7 @@ def texshare_capture(self, context, camera, object, offscreen, spoutSender):
     view_matrix = object.matrix_world.inverted()
 
     projection_matrix = object.calc_matrix_camera(
-        context.depsgraph, x=dWIDTH, y=dHEIGHT)
+        context.evaluated_depsgraph_get(), x=dWIDTH, y=dHEIGHT)
 
     offscreen.draw_view3d(
         scene,
