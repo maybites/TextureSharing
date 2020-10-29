@@ -156,7 +156,7 @@ class CameraButtonsPanel:
 class TEXS_PT_camera_texshare( CameraButtonsPanel, Panel ):
     bl_label = "Streaming Texture"
     bl_options = {'DEFAULT_CLOSED'}
-    COMPAT_ENGINES = {'BLENDER_RENDER', 'BLENDER_EEVEE', 'BLENDER_WORKBENCH'}
+    COMPAT_ENGINES = {'BLENDER_RENDER', 'BLENDER_EEVEE', 'BLENDER_WORKBENCH', 'CYCLES'}
 
     def draw_header(self, context):
         cam = context.camera
