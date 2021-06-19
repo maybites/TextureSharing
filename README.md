@@ -16,7 +16,7 @@ my personal preference to install addons:
 
 2. [download](https://github.com/maybites/blender.script.spout/releases) the addon, unzip it and drop the 'spout' folder inside the addons-folder
 
-3. [download](https://github.com/maybites/Spout-for-Python/blob/master/Library/SpoutSDK.pyd) the Python SpoutSDK-library and drop it inside the modules-folder.
+3. [download](https://github.com/maybites/blender.script.spout/releases/tag/Python_3.9) the Python SpoutSDK-library and drop it inside the modules-folder. ([download for blender < 2.93](https://github.com/maybites/Spout-for-Python/blob/master/Library/SpoutSDK.pyd))
 
 (if somebody knows a better way to deal with the library, please let me know, but putting it next to the _init__ files doesn't work)
 
