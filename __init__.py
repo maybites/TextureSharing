@@ -15,10 +15,10 @@ bl_info = {
     "name" : "Spout",
     "author" : "Martin Froehlich",
     "description" : "Streaming Spout from Blender",
-    "blender" : (2, 80, 0),
-    "version" : (1, 0),
+    "blender" : (3, 0, 0),
+    "version" : (1, 3),
     "location" : "Properties > Camera > Camera data",
-    "warning" : "This plugin works only if the SpoutSDK.pyd is inside '~/scripts/modules'",
+    "warning" : "This plugin works only if the SpoutSDK.pyd is inside '~/scripts/modules' and Python39 is in the 'Path' user environment variable",
     "category" : "Render", 
     "wiki_url" : "https://github.com/maybites/blender.script.spout",
     "tracker_url" : "https://github.com/maybites/blender.script.spout/issues",
@@ -43,6 +43,7 @@ def texshare_capture(self, context, camera, object, offscreen, spoutSender):
     scene = context.scene
     dWIDTH = camera.texshare.capture_width
     dHEIGHT = camera.texshare.capture_height
+    applyCM = camera.texshare.applyColorManagmentSettings
      
     view_matrix = object.matrix_world.inverted()
 
@@ -55,7 +56,8 @@ def texshare_capture(self, context, camera, object, offscreen, spoutSender):
         context.space_data,
         context.region,
         view_matrix,
-        projection_matrix)
+        projection_matrix,
+        applyCM)
 
     bgl.glDisable(bgl.GL_DEPTH_TEST)
     draw_texture_2d(offscreen.color_texture, (10, 10), 40, 40)
@@ -124,6 +126,11 @@ class TEXS_PG_camera_texshare_settings(bpy.types.PropertyGroup):
         default = 0,
         description = "inidicates if streaming is active"
     )
+    applyColorManagmentSettings : bpy.props.BoolProperty(
+        name = "applyColorManagmentSettings",
+        default = 0,
+        description = "applies the current scenes color management settings"
+    )
     capture_width : bpy.props.IntProperty(
         name = "capture width",
         default = 1280,
@@ -171,6 +178,7 @@ class TEXS_PT_camera_texshare( CameraButtonsPanel, Panel ):
 
         row = layout.row(align=True)
         row.prop(ob.data, "name", text="server name")
+        row.prop(camera.texshare, "applyColorManagmentSettings", text="apply color managment")
 
         col = layout.column()
 

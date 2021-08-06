@@ -1,10 +1,12 @@
-# Spout addon for Blender
+# Spout addon V1.3 for Blender 3.0.0
 
 Spout for Blender allows to stream [spout](http://spout.zeal.co/) streams from blender.
 
 This works only for Windows 10 64 bit.
 
 ## Installation
+
+Please make sure you have the most current Blender 3.0.0 installed.
 
 my personal preference to install addons:
 
@@ -16,7 +18,9 @@ my personal preference to install addons:
 
 2. [download](https://github.com/maybites/blender.script.spout/releases) the addon, unzip it and drop the 'spout' folder inside the addons-folder
 
-3. [download](https://github.com/maybites/blender.script.spout/releases/tag/Python_3.9) the Python SpoutSDK-library and drop it inside the modules-folder. ([download for blender < 2.93](https://github.com/maybites/Spout-for-Python/blob/master/Library/SpoutSDK.pyd))
+3. [download](https://github.com/maybites/blender.script.spout/releases/tag/Python_3.9) the Python SpoutSDK-library and drop it inside the modules-folder.
+
+4. Make sure the current python version is installed and added to the Path environment variable. (Checkbox during the installation)
 
 (if somebody knows a better way to deal with the library, please let me know, but putting it next to the _init__ files doesn't work)
 
@@ -47,11 +51,6 @@ You should be able to create as many Cameras with streams as you wish.
 
 The render settings are currently taken from the main 3d View settings.
 
-## Issues
-
-* Some Nvdia GFX-cards have a rendering problem in EEVEE when the render method is set to 'LookDev' and 'Rendered'. There is a [bug report](https://developer.blender.org/T61768) open where you can add your hardware specs if you encounter this issue.
-
-
 ## Syphon
 
 No, this addon is unable to stream [syphon](http://syphon.v002.info/) on OSX. But I had a chat with the syphon developers and it is feasible to make it happen, too. The only thing that is needed is an Objective-C -> Python wrapper, which is doable. But unfortunately this is beyond my development abilities. If you think you have the necessary skills, please contact me. I would like to see Syphon for Blender happening, too.
@@ -61,4 +60,4 @@ No, this addon is unable to stream [syphon](http://syphon.v002.info/) on OSX. Bu
 Blender Plugin by Martin Froehlich.
 
 ### Special Thanks:
-Obviously Lyn Jarvis for developing Spout in the first place. And without the [Spout for Python library](https://github.com/maybites/Spout-for-Python) developed by Ryan Walker and the valuable [hint](https://docs.blender.org/api/blender2.8/gpu.html#rendering-the-3d-view-into-a-texture) from Jonas Dichelle I would still dab in darkness...
+Obviously Lyn Jarvis for developing Spout in the first place. And without the [Spout for Python library](https://github.com/maybites/Spout-for-Python) developed by Ryan Walker and the valuable [hint](https://docs.blender.org/api/master/gpu.html#rendering-the-3d-view-into-a-texture) from Jonas Dichelle I would still dab in darkness...
