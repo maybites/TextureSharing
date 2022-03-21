@@ -1,4 +1,4 @@
-# Spout addon V1.3 for Blender 3.1.0
+# Spout addon V2.0 for Blender 3.0.x
 
 Spout for Blender allows to stream [spout](http://spout.zeal.co/) streams from blender.
 
@@ -8,30 +8,28 @@ This works only for Windows 10 64 bit.
 
 Please make sure you have the most current Blender 3.0.x installed.
 
-1. [download](https://github.com/maybites/blender.script.spout/releases) the addon from the releases, unzip it and drop the 'spout' folder inside the addons-folder
+1. [download](https://github.com/maybites/blender.script.spout/releases) the addon from the **releases**, unzip it and drop the 'spout' folder inside the addons-folder
 
 The default addons folder is located here:
 
 - blender_3.0.x
-  └ blender.exe
-  └ 3.x
-    └ scripts
-      └ addons
-      └ modules  
+  - blender.exe
+  - 3.x
+    - scripts
+      - addons
+      - modules  
 
-2. [download](https://pypi.org/project/SpoutGL/#files) the Python SpoutGL-library (whl - file). Make sure you select the correct python version for your blender version -> [release notes](https://wiki.blender.org/wiki/Reference/Release_Notes) -> Python API.
+2. [download](https://pypi.org/project/SpoutGL/#files) the Python SpoutGL-library (whl - file). Make sure you select the correct python version for your blender version. check -> [release notes](https://wiki.blender.org/wiki/Reference/Release_Notes) -> Python API.
 
-3. Use 7-zip to unzip the library and drag the folder named 'SpoutGL' to the modules-folder inside your script folder.
+3. Use 7-zip to unzip the library and drag the folder inside named 'SpoutGL' to the modules-folder inside your scripts folder.
 
-inside blender:
+4. start blender.
 
-4. restart blender.
-
-5. Menu > Edit > Preferences > Add-addons
+5. Menu > Edit > Preferences > Add-ons
 
 6. search for spout
 
-8. Enable it, save preferences and close preferences.
+7. Enable it, save preferences and close preferences.
 
 ## Usage
 
@@ -41,12 +39,12 @@ For streaming you need a Camera object.
 
 The plugin adds a Panel to the Camera properties called 'Streaming Texture'. The following properties are available:
 
-* The streaming name is fixed to the camera name.
+* The streaming name is default set to the camera name.
 * capture/streaming resolution.
-* show preview
-* use eevee color management (recomended)
+* show preview inside viewport.
+* use eevee color management (recommended)
 * chose a workspace with the desired render / shading preferences
-* chose a scene and layer setup to render 
+* chose a scene and layer setup to render
 
 IMPORTANT:
 If you desire to choose a scene and layer setup other than default, and this scene and layer has not yet been rendered by blender since you opened the blender file - blender will crash when you start streaming. Not sure if this constitutes as bug, maybe just a limitation of blender..
