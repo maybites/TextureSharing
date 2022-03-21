@@ -16,22 +16,23 @@ bl_info = {
     "author" : "Martin Froehlich",
     "description" : "Streaming Spout from Blender",
     "blender" : (3, 0, 0),
-    "version" : (1, 3),
+    "version" : (2, 0),
     "location" : "Properties > Camera > Camera data",
-    "warning" : "This plugin works only if the SpoutSDK.pyd is inside '~/scripts/modules' and Python39 is in the 'Path' user environment variable",
+    "warning" : "This plugin works only if the SpoutGL (https://pypi.org/project/SpoutGL/#files) is inside '~/scripts/modules'",
     "category" : "Render", 
     "wiki_url" : "https://github.com/maybites/blender.script.spout",
     "tracker_url" : "https://github.com/maybites/blender.script.spout/issues",
-    "support" : "TESTING"
+    "support" : "COMMUNITY"
 }
 
 import bpy
 from bpy.types import Panel
 
-import SpoutSDK
+import SpoutGL
 import bgl
 import gpu
 import uuid
+import textwrap
 from gpu_extras.presets import draw_texture_2d
 
 #dictionary to store the references to
@@ -39,56 +40,75 @@ db_drawHandle = {} # the draw handler
 db_spoutInstances = {} # the spout instance
 
 # function for the draw handler to capture the texture from the perspective of the camera
-def texshare_capture(self, context, camera, object, offscreen, spoutSender):
-    scene = context.scene
+def texshare_capture(self, context, camera, object, space, region, scene, layer, offscreen, spoutSender, showPreview):
     dWIDTH = camera.texshare.capture_width
     dHEIGHT = camera.texshare.capture_height
     applyCM = camera.texshare.applyColorManagmentSettings
-     
+
     view_matrix = object.matrix_world.inverted()
 
     projection_matrix = object.calc_matrix_camera(
         context.evaluated_depsgraph_get(), x=dWIDTH, y=dHEIGHT)
 
+    #bpy.data.screens['3DView'].areas[0].regions[0]
+
     offscreen.draw_view3d(
         scene,
-        context.view_layer,
-        context.space_data,
+        layer,
+        space,
         context.region,
         view_matrix,
         projection_matrix,
-        applyCM)
+        do_color_management=applyCM)
 
-    bgl.glDisable(bgl.GL_DEPTH_TEST)
-    draw_texture_2d(offscreen.color_texture, (10, 10), 40, 40)
-       
-    spoutSender.SendTexture(offscreen.color_texture, bgl.GL_TEXTURE_2D, dWIDTH, dHEIGHT, True, 0)
-   
+    if showPreview:
+        bgl.glDisable(bgl.GL_DEPTH_TEST)
+        draw_texture_2d(offscreen.color_texture, (10, 10), dWIDTH / 4, dHEIGHT / 4)
+
+    spoutSender.sendTexture(offscreen.color_texture, bgl.GL_TEXTURE_2D, dWIDTH, dHEIGHT, True, 0)
+    spoutSender.setFrameSync(camera.name)
+ 
+         
 # main function called when the settings 'enable' property is changed
 def texshare_main(self, context):
     global db_drawHandle
     global db_spoutInstances
     
+    guivars = context.camera.texshare
+    
     # my database ID
-    dbID = context.camera.texshare.dbID
+    dbID = guivars.dbID
     
     # if streaming has been enabled and no id has yet been stored in the db
     if context.camera.texshare.enable == 1 and dbID not in db_drawHandle:
         # first we create a unique identifier for the reference db dicts
         dbID = str(uuid.uuid1())
         
-        dWIDTH = context.camera.texshare.capture_width
-        dHEIGHT = context.camera.texshare.capture_height
+        dWIDTH = guivars.capture_width
+        dHEIGHT = guivars.capture_height
         
         # create a new spout sender instance
-        spoutSender = SpoutSDK.SpoutSender()
-        spoutSender.CreateSender(context.camera.name, dWIDTH, dHEIGHT, 0)        
+        spoutSender = SpoutGL.SpoutSender()
+        spoutSender.setSenderName(context.camera.name)       
         
         # create a off screen renderer
         offscreen = gpu.types.GPUOffScreen(dWIDTH, dHEIGHT)
-        
+
+        mySpace = context.space_data
+        myRegion = context.region
+ 
+        for area in bpy.data.screens[guivars.workspace].areas:
+            if area.type == 'VIEW_3D':
+                myRegion = area.regions[0]
+                for spaces in area.spaces:
+                    if spaces.type == 'VIEW_3D':
+                        mySpace = spaces
+
+        myScene = bpy.data.scenes[guivars.scene]
+        myLayer = myScene.view_layers[guivars.layer]
+
         # collect all the arguments to pass to the draw handler
-        args = (self, context, context.camera, context.object, offscreen, spoutSender)
+        args = (self, context, context.camera, context.object, mySpace, myRegion, myScene, myLayer, offscreen, spoutSender, guivars.preview)
         
         # instantiate the draw handler, 
         # using the texshare_capture function defined above
@@ -101,13 +121,22 @@ def texshare_main(self, context):
     # if streaming has been disabled and my ID is still stored in the db
     if context.camera.texshare.enable == 0 and dbID in db_drawHandle:
         bpy.types.SpaceView3D.draw_handler_remove(db_drawHandle[dbID], 'WINDOW')
-        db_spoutInstances[dbID].ReleaseSender(0)
+        db_spoutInstances[dbID].releaseSender()
         #removing my ID
         db_drawHandle.pop(dbID, None)
         dbID == "off"
     
     # store the database ID again inside the settings
     context.camera.texshare.dbID = dbID
+
+# helper method to render long texts in multiple lines inside a GUI panel
+def _label_multiline(context, text, parent):
+    chars = int(context.region.width / 7)   # 7 pix on 1 character
+    wrapper = textwrap.TextWrapper(width=chars)
+    text_lines = wrapper.wrap(text=text)
+    for text_line in text_lines:
+        parent.label(text=text_line)
+
 
 class TEXS_PG_camera_texshare_settings(bpy.types.PropertyGroup):
     enable : bpy.props.BoolProperty(
@@ -132,22 +161,41 @@ class TEXS_PG_camera_texshare_settings(bpy.types.PropertyGroup):
         description = "applies the current scenes color management settings"
     )
     capture_width : bpy.props.IntProperty(
-        name = "capture width",
+        name = "Capture width",
         default = 1280,
         description = "Capture resolution width in pixels"
     )
     capture_height : bpy.props.IntProperty(
-        name = "capture hight",
+        name = "Capture hight",
         default = 720,
         description = "Capture resolution height in pixels"
     )
     dbID : bpy.props.StringProperty(
         name ="database ID",
         default= "off",
-        description = "referenceID for database")
+        description = "referenceID for database"
+    )
+    workspace : bpy.props.StringProperty(
+        name ="workspace",
+        default= "Layout",
+        description = "Workspace from which to use the Overlay and Shading properties"
+        )
+    scene : bpy.props.StringProperty(
+        name ="scene",
+        default= "Scene",
+        description = "Scene to render"
+        )
+    layer : bpy.props.StringProperty(
+        name ="layer",
+        default= "ViewLayer",
+        description = "Layer in Scene to render"
+        )
+    preview : bpy.props.BoolProperty(
+        name ="Preview",
+        default= 0,
+        description = "Show preview of streamed texture inside viewport"
+        )
 
-
-    
 class CameraButtonsPanel:
     bl_space_type = 'PROPERTIES'
     bl_region_type = 'WINDOW'
@@ -174,18 +222,38 @@ class TEXS_PT_camera_texshare( CameraButtonsPanel, Panel ):
 
         layout.use_property_split = True
 
-        layout.active = camera.texshare.enable
+        layout.active = 1 - camera.texshare.enable
 
         row = layout.row(align=True)
-        row.prop(ob.data, "name", text="server name")
-        row.prop(camera.texshare, "applyColorManagmentSettings", text="apply color managment")
+        row.prop(ob.data, "name", text="Server name")
+        
+        row = layout.row(align=True)
+        row.prop(camera.texshare, "applyColorManagmentSettings", text="Apply color managment")
+
+        row = layout.row(align=True)
+        row.prop(camera.texshare, "preview", text="Show Preview")
 
         col = layout.column()
 
         sub = col.column(align=True)
         sub.prop(camera.texshare, "capture_width", slider=True)
         sub.prop(camera.texshare, "capture_height", slider=True)
-        
+
+        row = layout.row(align=True)
+        row.prop_search(camera.texshare,'workspace',bpy.data,'workspaces',text='Shading')
+
+        col = layout.column()
+
+        sub = col.column(align=True)
+        sub.prop_search(camera.texshare,'scene',bpy.data,'scenes',text='Scene')
+        sub.prop_search(camera.texshare,'layer',bpy.data.scenes[camera.texshare.scene],'view_layers',text='Layer')
+        sub.label(icon='ERROR')
+        text = 'Important: When selecting a Scene and Layer other than default: first open and view them before starting the streaming. otherwise blender will crash'
+        _label_multiline(
+            context=context,
+            text=text,
+            parent=sub
+        )
 
 classes = (
     TEXS_PG_camera_texshare_settings,
