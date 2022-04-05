@@ -1,4 +1,4 @@
-# Spout addon V2.0 for Blender 3.0.x
+# Spout addon V2.0.1 for Blender 3.0.x
 
 Spout for Blender allows to stream [spout](http://spout.zeal.co/) streams from blender.
 
@@ -46,14 +46,11 @@ The plugin adds a Panel to the Camera properties called 'Streaming Texture'. The
 * chose a workspace with the desired render / shading preferences
 * chose a scene and layer setup to render
 
-IMPORTANT:
-If you desire to choose a scene and layer setup other than default, and this scene and layer has not yet been rendered by blender since you opened the blender file - blender will crash when you start streaming. Not sure if this constitutes as bug, maybe just a limitation of blender..
-
 You should be able to create as many Cameras with streams as you wish.
 
 ## Syphon
 
-No, this addon is unable to stream [syphon](http://syphon.v002.info/) on OSX. It is possible to do the same thing with syphon, though my tests showed dismal performances...
+No, this addon is unable to stream [syphon](http://syphon.v002.info/) on OSX. Comming soon...
 
 ## Credits
 

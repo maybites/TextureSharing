@@ -16,7 +16,7 @@ bl_info = {
     "author" : "Martin Froehlich",
     "description" : "Streaming Spout from Blender",
     "blender" : (3, 0, 0),
-    "version" : (2, 0),
+    "version" : (2, 0, 1),
     "location" : "Properties > Camera > Camera data",
     "warning" : "This plugin works only if the SpoutGL (https://pypi.org/project/SpoutGL/#files) is inside '~/scripts/modules'",
     "category" : "Render", 
@@ -106,6 +106,16 @@ def texshare_main(self, context):
 
         myScene = bpy.data.scenes[guivars.scene]
         myLayer = myScene.view_layers[guivars.layer]
+
+        myCurrentScene = bpy.context.window.scene
+        myCurrentLayer = bpy.context.window.view_layer
+
+        # quickly open the to be rendered scene and layer to avoid a crash of blender
+        bpy.context.window.scene = myScene
+        bpy.context.window.view_layer = myLayer
+
+        bpy.context.window.scene = myCurrentScene
+        bpy.context.window.view_layer = myCurrentLayer
 
         # collect all the arguments to pass to the draw handler
         args = (self, context, context.camera, context.object, mySpace, myRegion, myScene, myLayer, offscreen, spoutSender, guivars.preview)
@@ -247,13 +257,6 @@ class TEXS_PT_camera_texshare( CameraButtonsPanel, Panel ):
         sub = col.column(align=True)
         sub.prop_search(camera.texshare,'scene',bpy.data,'scenes',text='Scene')
         sub.prop_search(camera.texshare,'layer',bpy.data.scenes[camera.texshare.scene],'view_layers',text='Layer')
-        sub.label(icon='ERROR')
-        text = 'Important: When selecting a Scene and Layer other than default: first open and view them before starting the streaming. otherwise blender will crash'
-        _label_multiline(
-            context=context,
-            text=text,
-            parent=sub
-        )
 
 classes = (
     TEXS_PG_camera_texshare_settings,
