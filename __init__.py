@@ -16,7 +16,7 @@ bl_info = {
     "author" : "Martin Froehlich",
     "description" : "Streaming Spout from Blender",
     "blender" : (3, 0, 0),
-    "version" : (2, 0, 1),
+    "version" : (2, 0, 2),
     "location" : "Properties > Camera > Camera data",
     "warning" : "This plugin works only if the SpoutGL (https://pypi.org/project/SpoutGL/#files) is inside '~/scripts/modules'",
     "category" : "Render", 
@@ -97,7 +97,7 @@ def texshare_main(self, context):
         mySpace = context.space_data
         myRegion = context.region
  
-        for area in bpy.data.screens[guivars.workspace].areas:
+        for area in bpy.data.workspaces[guivars.workspace].screens[0].areas:
             if area.type == 'VIEW_3D':
                 myRegion = area.regions[0]
                 for spaces in area.spaces:
@@ -167,7 +167,7 @@ class TEXS_PG_camera_texshare_settings(bpy.types.PropertyGroup):
     )
     applyColorManagmentSettings : bpy.props.BoolProperty(
         name = "applyColorManagmentSettings",
-        default = 0,
+        default = 1,
         description = "applies the current scenes color management settings"
     )
     capture_width : bpy.props.IntProperty(

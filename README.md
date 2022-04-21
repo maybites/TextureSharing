@@ -1,4 +1,4 @@
-# Spout addon V2.0.1 for Blender 3.0.x
+# Spout addon V2.0.2 for Blender 3.0.x
 
 Spout for Blender allows to stream [spout](http://spout.zeal.co/) streams from blender.
 
