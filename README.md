@@ -8,28 +8,15 @@ This works only for Windows 10 64 bit.
 
 Please make sure you have the most current Blender 3.0.x installed.
 
-1. [download](https://github.com/maybites/blender.script.spout/releases) the addon from the **releases**, unzip it and drop the 'spout' folder inside the addons-folder
+1. [download](https://github.com/maybites/blender.script.spout/releases) the addon from the **releases**
 
-The default addons folder is located here:
+2. Open Blender > Menu >  Preferences > Add-ons > search for and enable the 'Spout' add-on  
 
-- blender_3.0.x
-  - blender.exe
-  - 3.x
-    - scripts
-      - addons
-      - modules  
+3. Install the SpoutGL library via pip.
 
-2. [download](https://pypi.org/project/SpoutGL/#files) the Python SpoutGL-library (whl - file). Make sure you select the correct python version for your blender version. check -> [release notes](https://wiki.blender.org/wiki/Reference/Release_Notes) -> Python API.
+3b. if this fails, [download](https://pypi.org/project/SpoutGL/#files) the Python SpoutGL-library (whl - file). Make sure you select the correct python version for your blender version. check -> release notes -> Python API.
 
-3. Use 7-zip to unzip the library and drag the folder inside named 'SpoutGL' to the modules-folder inside your scripts folder.
-
-4. start blender.
-
-5. Menu > Edit > Preferences > Add-ons
-
-6. search for spout
-
-7. Enable it, save preferences and close preferences.
+4. Save preferences and close preferences.
 
 ## Usage
 
@@ -58,3 +45,5 @@ Blender Plugin by Martin Froehlich.
 
 ### Special Thanks:
 Obviously Lyn Jarvis for developing Spout in the first place. And without [SpoutGL for Python](https://github.com/jlai/Python-SpoutGL) developed by Jason and the valuable [hint](https://docs.blender.org/api/master/gpu.html#rendering-the-3d-view-into-a-texture) from Jonas Dichelle I would still dab in darkness...
+
+[CAD_Sketcher](https://github.com/hlorus/CAD_Sketcher) showed me how to dynamically install the needed SpoutGl library. Hurray to Opensource!
