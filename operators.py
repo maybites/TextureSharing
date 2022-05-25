@@ -3,7 +3,15 @@ import bgl
 import gpu
 from gpu_extras.presets import draw_texture_2d
 
-import SpoutGL
+
+import logging
+
+logger = logging.getLogger(__name__)
+
+try:
+    import SpoutGL
+except ModuleNotFoundError as ex:
+    print(f"Could not load SpoutGL: {ex}")
 
 import uuid
 

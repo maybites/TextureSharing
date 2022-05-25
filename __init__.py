@@ -25,30 +25,18 @@ bl_info = {
     "support" : "COMMUNITY"
 }
 
-if "bpy" in locals():
-    import importlib
+import bpy
 
-    my_modules = (
-        preferences,
-        functions,
-        global_data,
-        operators,
-        ui,
-        install,
-    )
-    for m in my_modules:
-        importlib.reload(m)
-else:
-    import bpy
-    from . import (
-        preferences,
-        functions,
-        global_data,
-        operators,
-        ui,
-        install,
-    )
+from . import (
+    pip_importer
+)
 
+pip_importer.execute()
+
+from . import (
+    operators,
+    ui,
+)
 
 from tempfile import gettempdir
 from pathlib import Path
@@ -75,15 +63,17 @@ file_handler = logging.FileHandler(filepath, mode="w")
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
 
+def get_prefs():
+    return bpy.context.preferences.addons[__package__].preferences
+
 def update_logger():
-    prefs = functions.get_prefs()
-    logger.setLevel(prefs.logging_level)
+    prefs = get_prefs()
+    #logger.setLevel(prefs.logging_level)
 
 def register():
     # Register base
-    preferences.register()
-    install.register()
     update_logger()
+    pip_importer.register()
     
     logger.info(
         "Enabled Spout GL, version: {}".format(bl_info["version"])
@@ -91,7 +81,7 @@ def register():
 
     # Check Module and register all modules
     try:
-        install.check_module()
+        pip_importer.check_module()
         logger.info("SpoutGL available, fully registered modules")
     except ModuleNotFoundError:
         logger.warning(
@@ -100,9 +90,7 @@ def register():
 
 
 def unregister():
-    install.unregister()
-    preferences.unregister()
-    install.unregister_full()
+    pip_importer.unregister()
 
 if __name__ == "__main__":
     register()
