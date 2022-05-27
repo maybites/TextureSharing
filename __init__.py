@@ -28,12 +28,7 @@ bl_info = {
 import bpy
 
 from . import (
-    pip_importer
-)
-
-pip_importer.execute()
-
-from . import (
+    pip_importer,
     operators,
     ui,
 )
@@ -73,23 +68,23 @@ def update_logger():
 def register():
     # Register base
     update_logger()
-    pip_importer.register()
+    pip_importer.register(["SpoutGL"])
     
-    logger.info(
-        "Enabled Spout GL, version: {}".format(bl_info["version"])
-    )
-
-    # Check Module and register all modules
+    # Check required modules availability
     try:
         pip_importer.check_module()
-        logger.info("SpoutGL available, fully registered modules")
+        logger.info("Spout available, fully registered modules")
     except ModuleNotFoundError:
         logger.warning(
-            "SpoutGL module isn't available, only base modules registered"
+            "Spout addon isn't available, install required module via Properties > Addons > Spout"
         )
 
+    operators.register()
+    ui.register()
 
 def unregister():
+    ui.unregister()
+    operators.unregister()
     pip_importer.unregister()
 
 if __name__ == "__main__":

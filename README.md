@@ -14,9 +14,9 @@ Please make sure you have the most current Blender 3.0.x installed.
 
 3. Install the SpoutGL library via pip.
 
-3b. if this fails, [download](https://pypi.org/project/SpoutGL/#files) the Python SpoutGL-library (whl - file). Make sure you select the correct python version for your blender version. check -> release notes -> Python API.
-
 4. Save preferences and close preferences.
+
+5. Restart Blender.
 
 ## Usage
 

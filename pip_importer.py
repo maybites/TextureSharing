@@ -1,3 +1,4 @@
+from numpy import append
 import bpy
 from bpy.props import (
     PointerProperty,
@@ -9,6 +10,7 @@ from bpy.props import (
 )
 
 from bpy.types import AddonPreferences, Panel, Menu
+from bpy.types import Operator
 
 import sys
 import subprocess
@@ -16,10 +18,10 @@ import logging
 from pathlib import Path
 
 PYPATH = sys.executable
-registered = False
 
 # separate packages with spaces
-pip_packages = "SpoutGL" 
+pip_packages = []
+pip_packages_reg = []
 
 log_levels = [
     ("CRITICAL", "Critical", "", 0),
@@ -40,46 +42,23 @@ def get_log_level(self):
     return item.value
 
 
-def execute():
-    if not ensure_pip():
-        logger.info("CANCELLED")
-
-    if install_package(pip_packages):
-        try:
-            check_module()
-            logger.info("Package successfully installed")
-        except ModuleNotFoundError:
-            logger.info("Package should be available but cannot be found, check console for detailed info. Try restarting blender, otherwise get in contact.")
-        show_package_info("SpoutGL")
-    else:
-        logger.info("Cannot install package: {}".format(pip_packages))
-        logger.info("CANCELLED")
-    logger.info("FINISHED")
-
-def register_full():
-    for m in modules:
-        m.register()
-
-def unregister_full():
-    for m in reversed(modules):
-        m.unregister()
-
 def check_module():
     # Note: Blender might be installed in a directory that needs admin rights and thus defaulting to a user installation.
     # That path however might not be in sys.path....
-    import sys, site
+    import sys, site, importlib
+    global pip_packages_reg
 
     p = site.USER_SITE
     if p not in sys.path:
         sys.path.append(p)
-    try:
-        import SpoutGL
-
-        registered = True
-        register_full()
-    except ModuleNotFoundError as e:
-        registered = False
-        raise e
+    for i in range(len(pip_packages)):
+        package = pip_packages[i]
+        try:
+            __import__(package)
+            pip_packages_reg[i] = True
+        except ModuleNotFoundError as e:
+            pip_packages_reg[i] = False
+            raise e
 
 
 def get_prefs():
@@ -167,22 +146,69 @@ class PiPPreferences(AddonPreferences):
         layout = self.layout
         layout.use_property_split = True
 
-        box = layout.box()
-        box.label(text="Spout Module")
-        if registered:
-            box.label(text="Registered", icon="CHECKMARK")
-            module = sys.modules["SpoutGL"]
-            box.label(text="Path: " + module.__path__[0])
+        for i in range(len(pip_packages)):
+            package = pip_packages[i]
+
+            box = layout.box()
+            box.label(text=package)
+            row = box.row().split(factor=0.2)
+            if pip_packages_reg[i] :
+                row.label(text="Registered", icon="CHECKMARK")
+                module = sys.modules[package]
+                row.label(text="Path: " + module.__path__[0])
+            else:
+                row.label(text="NotFound", icon="CANCEL")
+                row.operator(
+                    Pip_Install_package.bl_idname,
+                    text="Install from PIP",
+                ).package = package
+
+# installation operator
+class Pip_Install_package(Operator):
+    """Install module from local .whl file or from PyPi"""
+
+    bl_idname = "view3d.pip_install_package"
+    bl_label = "Install"
+
+    package: bpy.props.StringProperty(subtype="FILE_PATH")
+
+    def execute(self, context):
+        if not ensure_pip():
+            self.report(
+                {"WARNING"},
+                "PIP is not available and cannot be installed, please install PIP manually",
+            )
+            return {"CANCELLED"}
+
+        if not self.package:
+            self.report({"WARNING"}, "Specify package to be installed")
+            return {"CANCELLED"}
+
+        if install_package(self.package):
+            try:
+                check_module()
+                self.report({"INFO"}, "Package successfully installed")
+            except ModuleNotFoundError:
+                self.report({"WARNING"}, "Package should be available but cannot be found, check console for detailed info. Try restarting blender, otherwise get in contact.")
+            show_package_info(self.package)
         else:
-            row = box.row()
-            row.label(text="Module isn't Registered", icon="CANCEL")
+            self.report({"WARNING"}, "Cannot install package: {}".format(self.package))
+            return {"CANCELLED"}
+        return {"FINISHED"}
 
 
 classes =     (
+    Pip_Install_package,
     PiPPreferences,
 )
 
-def register():
+def register(packages):
+    global pip_packages
+    pip_packages = packages
+
+    for package in pip_packages:
+        pip_packages_reg.append(False)
+
     from bpy.utils import register_class
     for cls in classes:
         register_class(cls)
