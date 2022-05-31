@@ -156,6 +156,10 @@ class PiPPreferences(AddonPreferences):
                 row.label(text="Registered", icon="CHECKMARK")
                 module = sys.modules[package]
                 row.label(text="Path: " + module.__path__[0])
+                row.operator(
+                    Pip_Install_package.bl_idname,
+                    text="refresh",
+                ).package = package
             else:
                 row.label(text="NotFound", icon="CANCEL")
                 row.operator(
