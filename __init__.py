@@ -29,8 +29,6 @@ import bpy
 
 from . import (
     pip_importer,
-    operators,
-    ui,
 )
 
 from tempfile import gettempdir
@@ -68,23 +66,31 @@ def update_logger():
 def register():
     # Register base
     update_logger()
-    pip_importer.register(["SpoutGL"])
-    
+    pip_importer.register(
+        pip_importer.Package("SpoutGL", version="==0.0.3")
+    )
+
     # Check required modules availability
     try:
         pip_importer.check_module()
         logger.info("Spout available, fully registered modules")
+
+        from . import operators, ui
+        operators.register()
+        ui.register()
     except ModuleNotFoundError:
         logger.warning(
             "Spout addon isn't available, install required module via Properties > Addons > Spout"
         )
 
-    operators.register()
-    ui.register()
 
 def unregister():
-    ui.unregister()
-    operators.unregister()
+    try:
+        operators.unregister()
+        ui.unregister()
+    except Exception:
+        pass
+
     pip_importer.unregister()
 
 if __name__ == "__main__":
