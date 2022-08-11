@@ -5,9 +5,6 @@ from gpu_extras.presets import draw_texture_2d
 
 import json
 from dataclasses import dataclass
-import logging
-
-logger = logging.getLogger(__name__)
 
 try:
     import SpoutGL

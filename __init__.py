@@ -13,7 +13,7 @@
 
 bl_info = {
     "name" : "Spout",
-    "author" : "Martin Froehlich",
+    "author" : "Martin Froehlich, Florian Bruggisser",
     "description" : "Streaming Spout from Blender",
     "blender" : (3, 0, 0),
     "version" : (3, 0, 0),
@@ -31,55 +31,21 @@ from . import (
     pip_importer,
 )
 
-from tempfile import gettempdir
-from pathlib import Path
-
-import logging
-
-logger = logging.getLogger(__name__)
-
-# Clear handlers
-if logger.hasHandlers():
-    logger.handlers.clear()
-
-logger.setLevel(logging.DEBUG)
-formatter = logging.Formatter("%(name)s:{%(levelname)s}: %(message)s")
-
-stream_handler = logging.StreamHandler()
-stream_handler.setFormatter(formatter)
-logger.addHandler(stream_handler)
-
-filepath = Path(gettempdir()) / (__name__ + ".log")
-
-logger.info("Logging into: " + str(filepath))
-file_handler = logging.FileHandler(filepath, mode="w")
-file_handler.setFormatter(formatter)
-logger.addHandler(file_handler)
-
-def get_prefs():
-    return bpy.context.preferences.addons[__package__].preferences
-
-def update_logger():
-    prefs = get_prefs()
-    #logger.setLevel(prefs.logging_level)
-
 def register():
-    # Register base
-    update_logger()
+    # First startup the pip importer
     pip_importer.register(
         pip_importer.Package("SpoutGL", version="==0.0.3")
     )
 
     # Check required modules availability
     try:
-        pip_importer.check_module()
-        logger.info("Spout available, fully registered modules")
+        pip_importer.check_modules()
 
         from . import operators, ui
         operators.register()
         ui.register()
     except ModuleNotFoundError:
-        logger.warning(
+        print(
             "Spout addon isn't available, install required module via Properties > Addons > Spout"
         )
 

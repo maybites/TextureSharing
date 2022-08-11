@@ -1,4 +1,4 @@
-# Spout addon V2.0.2 for Blender 3.0.x
+# Spout addon V3.0.0 for Blender 3.0.x
 
 Spout for Blender allows to stream [spout](http://spout.zeal.co/) streams from blender.
 
@@ -14,9 +14,9 @@ Please make sure you have the most current Blender 3.0.x installed.
 
 3. Install the SpoutGL library via pip.
 
-4. Save preferences and close preferences.
+4. Once the SpoutGL library is installed, disable and reenable the addon.
 
-5. Restart Blender.
+5. Save and close preferences.
 
 ## Usage
 
@@ -47,3 +47,5 @@ Blender Plugin by Martin Froehlich.
 Obviously Lyn Jarvis for developing Spout in the first place. And without [SpoutGL for Python](https://github.com/jlai/Python-SpoutGL) developed by Jason and the valuable [hint](https://docs.blender.org/api/master/gpu.html#rendering-the-3d-view-into-a-texture) from Jonas Dichelle I would still dab in darkness...
 
 [CAD_Sketcher](https://github.com/hlorus/CAD_Sketcher) showed me how to dynamically install the needed SpoutGl library. Hurray to Opensource!
+
+Python support by Florian Bruggisser
