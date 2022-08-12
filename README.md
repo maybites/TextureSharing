@@ -12,7 +12,7 @@ Please make sure you have the most current Blender 3.0.x installed.
 
 2. Open Blender > Menu >  Preferences > Add-ons > search for and enable the 'Spout' add-on  
 
-3. Install the SpoutGL library via pip.
+3. Press the button to install the SpoutGL library via pip.
 
 4. Once the SpoutGL library is installed, disable and reenable the addon.
 

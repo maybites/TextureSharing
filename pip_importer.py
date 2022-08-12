@@ -18,6 +18,9 @@ PYPATH = sys.executable
 # separate packages with spaces
 pip_packages = []
 
+# flag to indicate if the required packages were imported in this session 
+just_imported = False
+
 @dataclass
 class Package:
     name: str
@@ -31,6 +34,17 @@ class Package:
             return self.name
         return self.custom_module
 
+def add_package(package):
+    pip_packages.append(package)
+
+def auto_install_packages():
+    for package in pip_packages:
+        try:
+            check_module(package)
+            if not package._registered:
+                install_package(package)
+        except ModuleNotFoundError as e:
+            pass         
 
 def check_module(package):
     # Note: Blender might be installed in a directory that needs admin rights and thus defaulting to a user installation.
@@ -78,7 +92,6 @@ def install_pip():
 def update_pip():
     cmd = [PYPATH, "-m", "pip", "install", "--upgrade", "pip"]
     return not subprocess.call(cmd)
-
 
 def install_package(package):
     update_pip()
@@ -186,6 +199,11 @@ class PiPPreferences(AddonPreferences):
                     text="Install from PIP"
                 )
 
+        if just_imported:
+            box = layout.box()
+            row = box.row()
+            box.label(text="Restart the addon to make it functional!", icon="ERROR")
+
 # Refresh operator
 class Pip_Refresh_package(Operator):
     """refresh module from local .whl file or from PyPi"""
@@ -265,9 +283,8 @@ class Pip_Install_packages(Operator):
             else:
                 self.report({"WARNING"}, "Cannot install package: {}".format(self.package_path))
         
-        #restart addon
-        #addon_utils.disable(pip_addon)
-        #addon_utils.enable(pip_addon)
+        global just_imported
+        just_imported = True
 
         return {"FINISHED"}
 
@@ -279,9 +296,12 @@ classes =     (
     PiPPreferences
 )
 
-def register(*packages):
+def register():
     global pip_packages
-    pip_packages = packages
+    pip_packages.clear()
+
+    global just_imported
+    just_imported = False
 
     from bpy.utils import register_class
     for cls in classes:

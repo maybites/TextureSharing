@@ -25,7 +25,7 @@ bl_info = {
     "support" : "COMMUNITY"
 }
 
-import bpy
+import platform
 
 from . import (
     pip_importer,
@@ -33,9 +33,16 @@ from . import (
 
 def register():
     # First startup the pip importer
-    pip_importer.register(
-        pip_importer.Package("SpoutGL", version="==0.0.3")
-    )
+    pip_importer.register()
+
+    # then add the required packages
+    if platform.system() == "Windows":
+        pip_importer.add_package(pip_importer.Package("SpoutGL", version="==0.0.4"))
+
+    if platform.system() == "Darwin":  
+        pip_importer.add_package(pip_importer.Package("syphonpy", version="==0.0.2"))
+
+    # pip_importer.auto_install_packages()
 
     # Check required modules availability
     try:
