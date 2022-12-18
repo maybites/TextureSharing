@@ -53,7 +53,7 @@ def register():
         ui.register()
     except ModuleNotFoundError:
         print(
-            "Spout addon isn't available, install required module via Properties > Addons > Spout"
+            "Addon isn't available, install required module via Properties > Addons > Spout"
         )
 
 

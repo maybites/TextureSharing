@@ -178,7 +178,8 @@ class PiPPreferences(AddonPreferences):
             if package._registered:
                 row.label(text="Registered", icon="CHECKMARK")
                 module = sys.modules[package.module]
-                row.label(text="Path: " + module.__path__[0])
+                if hasattr(module, '__path__'):
+                    row.label(text="Path: " + module.__path__[0])
                 row.operator(
                     Pip_Refresh_package.bl_idname,
                     text="refresh",

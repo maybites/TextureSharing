@@ -6,10 +6,12 @@ from gpu_extras.presets import draw_texture_2d
 import json
 from dataclasses import dataclass
 
+
 try:
-    import SpoutGL
+
+    from spout.fbs.FrameBufferSharingServer import FrameBufferSharingServer
 except ModuleNotFoundError as ex:
-    print(f"Could not load SpoutGL: {ex}")
+    print(f"Could not load FrameSharingModule: {ex}")
 
 import uuid
 
@@ -48,7 +50,7 @@ def frame_metadata(name, frame_metadata_buffer):
 
 
 # function for the draw handler to capture the texture from the perspective of the camera
-def texshare_capture(self, context, camera, object, space, region, scene, layer, offscreen, spoutSender, showPreview, frame_metadata_buffer):
+def texshare_capture(self, context, camera, object, space, region, scene, layer, offscreen, spyphonSender, showPreview, frame_metadata_buffer):
     dWIDTH = camera.texshare.capture_width
     dHEIGHT = camera.texshare.capture_height
     applyCM = camera.texshare.applyColorManagmentSettings
@@ -75,12 +77,12 @@ def texshare_capture(self, context, camera, object, space, region, scene, layer,
 
     buffer =  frame_metadata_buffer.content
 
-    spoutSender.writeMemoryBuffer(camera.name, buffer, len(buffer))
+    #if spyphonSender.can_memory_buffer() == True:
+    #    spyphonSender.write_memory_buffer(camera.name, buffer, len(buffer))
 
-    spoutSender.sendTexture(offscreen.color_texture, bgl.GL_TEXTURE_2D, dWIDTH, dHEIGHT, True, 0)
-    spoutSender.setFrameSync(camera.name)
- 
-         
+    spyphonSender.send_texture(offscreen.color_texture, dWIDTH, dHEIGHT, True)
+
+          
 # main function called when the settings 'enable' property is changed
 def texshare_main(self, context):
     global db_drawHandle
@@ -95,15 +97,18 @@ def texshare_main(self, context):
     if context.camera.texshare.enable == 1 and dbID not in db_drawHandle:
         # first we create a unique identifier for the reference db dicts
         dbID = str(uuid.uuid1())
+        updateDraw = False
         
         dWIDTH = guivars.capture_width
         dHEIGHT = guivars.capture_height
         
         # create a new spout sender instance
-        spoutSender = SpoutGL.SpoutSender()
-        spoutSender.setSenderName(context.camera.name)       
-        
-        spoutSender.createMemoryBuffer(context.camera.name, 1024)
+        spyphonSender = FrameBufferSharingServer.create(context.camera.name)
+        spyphonSender.setup()
+
+        #if spyphonSender.can_memory_buffer() == True:
+        ##    spyphonSender.create_memory_buffer(context.camera.name, 1024)
+
         # create a off screen renderer
         offscreen = gpu.types.GPUOffScreen(dWIDTH, dHEIGHT)
 
@@ -133,7 +138,7 @@ def texshare_main(self, context):
         frame_metadata_buffer = FrameMetDataBuffer("test")
 
         # collect all the arguments to pass to the draw handler
-        args = (self, context, context.camera, context.object, mySpace, myRegion, myScene, myLayer, offscreen, spoutSender, guivars.preview, frame_metadata_buffer)
+        args = (self, context, context.camera, context.object, mySpace, myRegion, myScene, myLayer, offscreen, spyphonSender, guivars.preview, frame_metadata_buffer)
         
         frameHandler = frame_metadata(context.camera.name, frame_metadata_buffer)
         bpy.app.handlers.depsgraph_update_post.append(frameHandler)
@@ -145,13 +150,13 @@ def texshare_main(self, context):
         # store the references inside the db-dicts
         db_frameHandle[dbID] = frameHandler
         db_drawHandle[dbID] = drawhandle
-        db_spoutInstances[dbID] = spoutSender
+        db_spoutInstances[dbID] = spyphonSender
         
     # if streaming has been disabled and my ID is still stored in the db
     if context.camera.texshare.enable == 0 and dbID in db_drawHandle:
         bpy.app.handlers.depsgraph_update_post.remove(db_frameHandle[dbID])
         bpy.types.SpaceView3D.draw_handler_remove(db_drawHandle[dbID], 'WINDOW')
-        db_spoutInstances[dbID].releaseSender()
+        db_spoutInstances[dbID].release()
         #removing my ID
         db_drawHandle.pop(dbID, None)
         dbID == "off"
