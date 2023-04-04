@@ -1,8 +1,8 @@
-# Spout addon V3.0.0 for Blender 3.0.x
+# Spout addon V3.1.0 for Blender 3.0.x
 
-Spout for Blender allows to stream [spout](http://spout.zeal.co/) streams from blender.
+Blender addon that allows to stream [spout](http://spout.zeal.co/) and [syphon](http://syphon.info/) streams from blender.
 
-This works only for Windows 10 64 bit.
+This works for current Windows and OSX.
 
 ## Installation
 
@@ -12,15 +12,15 @@ Please make sure you have the most current Blender 3.0.x installed.
 
 2. Open Blender > Menu >  Preferences > Add-ons > search for and enable the 'Spout' add-on  
 
-3. Press the button to install the SpoutGL library via pip.
+3. Press the button to install the SpoutGL or syphonpy library via pip.
 
-4. Once the SpoutGL library is installed, disable and reenable the addon.
+4. Once the library is installed, disable and reenable the addon.
 
 5. Save and close preferences.
 
 ## Usage
 
-Currently it is only possible to send Spout streams, but not to receive them.
+Currently it is only possible to send Spout and Syphon streams, but not to receive them.
 
 For streaming you need a Camera object.
 
@@ -35,9 +35,9 @@ The plugin adds a Panel to the Camera properties called 'Streaming Texture'. The
 
 You should be able to create as many Cameras with streams as you wish.
 
-## Syphon
+## Limitations
 
-No, this addon is unable to stream [syphon](http://syphon.v002.info/) on OSX. Comming soon...
+Streaming [syphon](http://syphon.v002.info/) has limitations: see [here](https://devtalk.blender.org/t/offscreen-rendering-texture-issue/28331)
 
 ## Credits
 
