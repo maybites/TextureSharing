@@ -27,10 +27,10 @@ class FrameBufferSharingServer(ABC):
 	@staticmethod
 	def create(name: str):
 		if platform.startswith("darwin"):
-			from spyphon.fbs.syphon.SyphonServer import SyphonServer
+			from .syphon.SyphonServer import SyphonServer
 			return SyphonServer(name)
 		elif platform.startswith("win"):
-			from spyphon.fbs.spout.SpoutServer import SpoutServer
+			from .spout.SpoutServer import SpoutServer
 			return SpoutServer(name)
 		else:
 			raise Exception(f"Platform {platform} is not supported!")

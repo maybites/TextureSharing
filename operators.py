@@ -8,8 +8,7 @@ from dataclasses import dataclass
 
 
 try:
-
-    from spout.fbs.FrameBufferSharingServer import FrameBufferSharingServer
+    from .fbs.FrameBufferSharingServer import FrameBufferSharingServer
 except ModuleNotFoundError as ex:
     print(f"Could not load FrameSharingModule: {ex}")
 

@@ -6,7 +6,7 @@ import SpoutGL
 import numpy as np
 import bgl
 
-from spyphon.fbs.FrameBufferSharingServer import FrameBufferSharingServer
+from ..FrameBufferSharingServer import FrameBufferSharingServer
 
 
 class SpoutServer(FrameBufferSharingServer):

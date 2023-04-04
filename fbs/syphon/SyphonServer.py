@@ -6,7 +6,7 @@ import syphonpy
 
 import logging
 
-from spyphon.fbs.FrameBufferSharingServer import FrameBufferSharingServer
+from ..FrameBufferSharingServer import FrameBufferSharingServer
 
 
 class SyphonServer(FrameBufferSharingServer):
@@ -28,6 +28,12 @@ class SyphonServer(FrameBufferSharingServer):
 
 	def can_memory_buffer(self):
 		return False
+
+	def create_memory_buffer(self, texture_name: str, size: int):
+		logging.warning("syphon does not support memory buffer. Could not create memory buffer.")
+
+	def write_memory_buffer(self, texture_name: str, buffer):
+		logging.warning("syphon does not support memory buffer. Could not write memory buffer.")
 
 	def release(self):
 		self.ctx.stop()
