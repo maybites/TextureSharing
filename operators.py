@@ -1,5 +1,4 @@
 import bpy
-import bgl
 import gpu
 from gpu_extras.presets import draw_texture_2d
 
@@ -71,7 +70,7 @@ def texshare_capture(self, context, camera, object, space, region, scene, layer,
         do_color_management=applyCM)
 
     if showPreview:
-        bgl.glDisable(bgl.GL_DEPTH_TEST)
+        gpu.state.depth_test_set("NONE")
         draw_texture_2d(offscreen.color_texture, (10, 10), dWIDTH / 4, dHEIGHT / 4)
 
     buffer =  frame_metadata_buffer.content
