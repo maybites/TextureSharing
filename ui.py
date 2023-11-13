@@ -11,7 +11,6 @@ def _label_multiline(context, text, parent):
     for text_line in text_lines:
         parent.label(text=text_line)
 
-
 class TEXS_PG_camera_texshare_settings(bpy.types.PropertyGroup):
     enable : bpy.props.BoolProperty(
         name = "enable",
