@@ -4,6 +4,8 @@ from typing import Optional
 
 import SpoutGL
 
+import bgl 
+
 import gpu
 from gpu_extras.presets import draw_texture_2d
 

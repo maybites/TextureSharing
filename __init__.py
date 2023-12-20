@@ -17,10 +17,11 @@ bl_info = {
     "description" : "Sharing Textures via Spout or Syphon from Blender",
     "blender" : (3, 0, 0),
     "version" : (4, 0, 0),
+    "doc_url" : "https://github.com/maybites/blender-texture-sharing",
     "location" : "Properties > Camera > Camera data",
     "category" : "Render", 
-    "wiki_url" : "https://github.com/maybites/blender.script.spout",
-    "tracker_url" : "https://github.com/maybites/blender.script.spout/issues",
+    "wiki_url" : "https://github.com/maybites/blender-texture-sharing",
+    "tracker_url" : "https://github.com/maybites/blender-texture-sharing/issues",
     "support" : "COMMUNITY"
 }
 
@@ -36,7 +37,7 @@ def register():
 
     # then add the required packages
     if platform.system() == "Windows":
-        pip_importer.add_package(pip_importer.Package("SpoutGL", version="==0.0.4", custom_module="spoutgl"))
+        pip_importer.add_package(pip_importer.Package("SpoutGL", version="==0.0.4", custom_module="SpoutGL"))
 
     if platform.system() == "Darwin":  
         pip_importer.add_package(pip_importer.Package("syphon-python", version="==0.1.0", custom_module="syphon"))
