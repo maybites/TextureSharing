@@ -1,4 +1,4 @@
-# Spout addon V4.0.0 for Blender 3.0.x
+# Spout and Syphon addon V4.0.0 for Blender 3.0.x
 
 Blender addon that allows to stream [spout](http://spout.zeal.co/) and [Syphon](https://syphon.github.io/) streams from blender.
 

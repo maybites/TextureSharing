@@ -145,13 +145,13 @@ def texshare_main(self, context):
         drawhandle = bpy.types.SpaceView3D.draw_handler_add(texshare_capture, args, 'WINDOW', 'POST_PIXEL')
         
         # store the references inside the db-dicts
-        db_frameHandle[dbID] = frameHandler
+        #db_frameHandle[dbID] = frameHandler
         db_drawHandle[dbID] = drawhandle
         db_spoutInstances[dbID] = spyphonSender
         
     # if streaming has been disabled and my ID is still stored in the db
     if context.camera.texshare.enable == 0 and dbID in db_drawHandle:
-        bpy.app.handlers.depsgraph_update_post.remove(db_frameHandle[dbID])
+        #bpy.app.handlers.depsgraph_update_post.remove(db_frameHandle[dbID])
         bpy.types.SpaceView3D.draw_handler_remove(db_drawHandle[dbID], 'WINDOW')
         db_spoutInstances[dbID].release()
         #removing my ID

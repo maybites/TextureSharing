@@ -95,9 +95,7 @@ def update_pip():
 
 def install_package(package):
     update_pip()
-    # cmd = [PYPATH, "-m", "pip", "install", "--upgrade", f"{package.name}{package.version}"]
-    cmd = [PYPATH, "-m", "pip", "install", "/Users/mfroehli/Arbeiten/02_code/python/syphon-python/dist/syphon_python-0.1.0-cp310-cp310-macosx_11_0_arm64.whl"]
-    # cmd = [PYPATH, "-m", "pip", "install", "-e", "/Users/mfroehli/Arbeiten/02_code/python/syphon-python"]
+    cmd = [PYPATH, "-m", "pip", "install", "--upgrade", f"{package.name}{package.version}"]
     ok = subprocess.call(cmd) == 0
     return ok
 
