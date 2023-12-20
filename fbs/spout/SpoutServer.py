@@ -3,8 +3,9 @@ from argparse import ArgumentParser, Namespace
 from typing import Optional
 
 import SpoutGL
-import numpy as np
-import bgl
+
+import gpu
+from gpu_extras.presets import draw_texture_2d
 
 from ..FrameBufferSharingServer import FrameBufferSharingServer
 
@@ -19,9 +20,13 @@ class SpoutServer(FrameBufferSharingServer):
         self.ctx = SpoutGL.SpoutSender()
         self.ctx.setSenderName(self.name)
 
-    def send_texture(self, texture_id: int, width: int, height: int, is_flipped: bool = False):
-        success = self.ctx.sendTexture(
-            texture_id, bgl.GL_TEXTURE_2D, width, height, is_flipped, 0)
+    def draw_texture(self, offscreen: gpu.types.GPUOffScreen, rect_pos: tuple[int, int], width: int, height: int):
+        draw_texture_2d(offscreen.color_texture, rect_pos, width, height)
+
+    def send_texture(self, offscreen:  gpu.types.GPUOffScreen, width: int, height: int, is_flipped: bool = False):
+        texture = offscreen.color_texture
+
+        success = self.ctx.sendTexture(texture, bgl.GL_TEXTURE_2D, width, height, is_flipped, 0)
 
         if not success:
             logging.warning("Could not send spout texture.")

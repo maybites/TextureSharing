@@ -40,7 +40,7 @@ def register():
         pip_importer.add_package(pip_importer.Package("SpoutGL", version="==0.0.4"))
 
     if platform.system() == "Darwin":  
-        pip_importer.add_package(pip_importer.Package("syphonpy", version="==0.0.2"))
+        pip_importer.add_package(pip_importer.Package("syphon"))
 
     # pip_importer.auto_install_packages()
 

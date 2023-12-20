@@ -28,6 +28,11 @@ class TEXS_PG_camera_texshare_settings(bpy.types.PropertyGroup):
         default = 0,
         description = "inidicates if streaming is active"
     )
+    isflipped : bpy.props.BoolProperty(
+        name = "isflipped",
+        default = 0,
+        description = "inidicates if the texture is flipped when streaming is active"
+    )
     applyColorManagmentSettings : bpy.props.BoolProperty(
         name = "applyColorManagmentSettings",
         default = 1,
@@ -102,6 +107,9 @@ class TEXS_PT_camera_texshare( CameraButtonsPanel, Panel ):
         
         row = layout.row(align=True)
         row.prop(camera.texshare, "applyColorManagmentSettings", text="Apply color managment")
+
+        row = layout.row(align=True)
+        row.prop(camera.texshare, "isflipped", text="Flip outgoing texture")
 
         row = layout.row(align=True)
         row.prop(camera.texshare, "preview", text="Show Preview")

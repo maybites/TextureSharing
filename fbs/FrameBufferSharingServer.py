@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+import gpu
 from sys import platform
 from typing import Optional, Any
 
@@ -9,7 +10,11 @@ class FrameBufferSharingServer(ABC):
 		self.name = name
 
 	@abstractmethod
-	def send_texture(self, texture_id: int, width: int, height: int, is_flipped: bool = False):
+	def draw_texture(self, offscreen: gpu.types.GPUOffScreen, rect_pos: tuple[int, int], width: int, height: int):
+		pass
+
+	@abstractmethod
+	def send_texture(self, offscreen:  gpu.types.GPUOffScreen, width: int, height: int, is_flipped: bool = False):
 		pass
 
 	@abstractmethod
@@ -27,8 +32,12 @@ class FrameBufferSharingServer(ABC):
 	@staticmethod
 	def create(name: str):
 		if platform.startswith("darwin"):
-			from .syphon.SyphonServer import SyphonServer
-			return SyphonServer(name)
+			if gpu.platform.backend_type_get() == 'METAL':
+				from .syphon.SyphonMetalServer import SyphonMetalServer
+				return SyphonMetalServer(name)
+			if gpu.platform.backend_type_get() == 'OPENGL':
+				from .syphon.SyphonOpenGLServer import SyphonOpenGLServer
+				return SyphonOpenGLServer(name)
 		elif platform.startswith("win"):
 			from .spout.SpoutServer import SpoutServer
 			return SpoutServer(name)

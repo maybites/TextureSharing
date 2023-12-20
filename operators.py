@@ -1,5 +1,6 @@
 import bpy
 import gpu
+import time
 from gpu_extras.presets import draw_texture_2d
 
 import json
@@ -48,7 +49,7 @@ def frame_metadata(name, frame_metadata_buffer):
 
 
 # function for the draw handler to capture the texture from the perspective of the camera
-def texshare_capture(self, context, camera, object, space, region, scene, layer, offscreen, spyphonSender, showPreview, frame_metadata_buffer):
+def texshare_capture(self, context, camera, object, space, region, scene, layer, offscreen, spyphonSender, showPreview, isFlipped, frame_metadata_buffer):
     dWIDTH = camera.texshare.capture_width
     dHEIGHT = camera.texshare.capture_height
     applyCM = camera.texshare.applyColorManagmentSettings
@@ -71,14 +72,12 @@ def texshare_capture(self, context, camera, object, space, region, scene, layer,
 
     if showPreview:
         gpu.state.depth_test_set("NONE")
-        draw_texture_2d(offscreen.color_texture, (10, 10), dWIDTH / 4, dHEIGHT / 4)
-
-    buffer =  frame_metadata_buffer.content
+        spyphonSender.draw_texture(offscreen, (10, 10), dWIDTH / 4, dHEIGHT / 4)
 
     #if spyphonSender.can_memory_buffer() == True:
     #    spyphonSender.write_memory_buffer(camera.name, buffer, len(buffer))
 
-    spyphonSender.send_texture(offscreen.color_texture, dWIDTH, dHEIGHT, True)
+    spyphonSender.send_texture(offscreen, dWIDTH, dHEIGHT, isFlipped)
 
           
 # main function called when the settings 'enable' property is changed
@@ -136,10 +135,10 @@ def texshare_main(self, context):
         frame_metadata_buffer = FrameMetDataBuffer("test")
 
         # collect all the arguments to pass to the draw handler
-        args = (self, context, context.camera, context.object, mySpace, myRegion, myScene, myLayer, offscreen, spyphonSender, guivars.preview, frame_metadata_buffer)
+        args = (self, context, context.camera, context.object, mySpace, myRegion, myScene, myLayer, offscreen, spyphonSender, guivars.preview, guivars.isflipped, frame_metadata_buffer)
         
-        frameHandler = frame_metadata(context.camera.name, frame_metadata_buffer)
-        bpy.app.handlers.depsgraph_update_post.append(frameHandler)
+        # frameHandler = frame_metadata(context.camera.name, frame_metadata_buffer)
+        # bpy.app.handlers.depsgraph_update_post.append(frameHandler)
 
         # instantiate the draw handler, 
         # using the texshare_capture function defined above
