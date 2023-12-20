@@ -15,28 +15,28 @@ class TEXS_PG_camera_texshare_settings(bpy.types.PropertyGroup):
     enable : bpy.props.BoolProperty(
         name = "enable",
         default = 0,
-        description = "enables the texture streaming", 
+        description = "Enables texture sharing", 
         update=operators.texshare_main
     )
     hasstarted : bpy.props.BoolProperty(
         name = "hasstarted",
         default = 0,
-        description = "inidicates if streaming has been activated"
+        description = "Inidicates if sharing has been activated"
     )
     isrunning : bpy.props.BoolProperty(
         name = "isrunning",
         default = 0,
-        description = "inidicates if streaming is active"
+        description = "Inidicates if sharing is active"
     )
     isflipped : bpy.props.BoolProperty(
         name = "isflipped",
         default = 0,
-        description = "inidicates if the texture is flipped when streaming is active"
+        description = "Inidicates if the texture is flipped when sharing is active"
     )
     applyColorManagmentSettings : bpy.props.BoolProperty(
         name = "applyColorManagmentSettings",
         default = 1,
-        description = "applies the current scenes color management settings"
+        description = "Applies the current scene color management settings"
     )
     capture_width : bpy.props.IntProperty(
         name = "Capture width",
@@ -71,7 +71,7 @@ class TEXS_PG_camera_texshare_settings(bpy.types.PropertyGroup):
     preview : bpy.props.BoolProperty(
         name ="Preview",
         default= 0,
-        description = "Show preview of streamed texture inside viewport"
+        description = "Show preview of shared texture inside viewport"
         )
 
 class CameraButtonsPanel:
@@ -85,7 +85,7 @@ class CameraButtonsPanel:
         return context.camera and (engine in cls.COMPAT_ENGINES)
 
 class TEXS_PT_camera_texshare( CameraButtonsPanel, Panel ):
-    bl_label = "Streaming Texture"
+    bl_label = "Share Texture"
     bl_options = {'DEFAULT_CLOSED'}
     COMPAT_ENGINES = {'BLENDER_RENDER', 'BLENDER_EEVEE', 'BLENDER_WORKBENCH', 'CYCLES'}
 
@@ -103,7 +103,7 @@ class TEXS_PT_camera_texshare( CameraButtonsPanel, Panel ):
         layout.active = 1 - camera.texshare.enable
 
         row = layout.row(align=True)
-        row.prop(ob.data, "name", text="Server name")
+        row.prop(ob.data, "name", text="Sender name")
         
         row = layout.row(align=True)
         row.prop(camera.texshare, "applyColorManagmentSettings", text="Apply color managment")

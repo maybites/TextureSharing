@@ -12,9 +12,9 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 bl_info = {
-    "name" : "Spout",
+    "name" : "TextureSharing",
     "author" : "Martin Froehlich, Florian Bruggisser",
-    "description" : "Streaming Textures via spout and syphon from Blender",
+    "description" : "Sharing Textures via Spout or Syphon from Blender",
     "blender" : (3, 0, 0),
     "version" : (4, 0, 0),
     "location" : "Properties > Camera > Camera data",
