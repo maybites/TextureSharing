@@ -80,7 +80,89 @@ def texshare_capture(self, context, camera, object, space, region, scene, layer,
 
           
 # main function called when the settings 'enable' property is changed
-def texshare_main(self, context):
+def texshare_send(self, context):
+    global db_drawHandle
+    global db_spoutInstances
+    
+    guivars = context.camera.TEXS_share
+    
+    # my database ID
+    dbID = guivars.dbID
+    
+    # if streaming has been enabled and no id has yet been stored in the db
+    if context.camera.texshare.enable == 1 and dbID not in db_drawHandle:
+        # first we create a unique identifier for the reference db dicts
+        dbID = str(uuid.uuid1())
+        updateDraw = False
+        
+        dWIDTH = guivars.capture_width
+        dHEIGHT = guivars.capture_height
+        
+        # create a new spout sender instance
+        spyphonSender = FrameBufferSharingServer.create(context.camera.name)
+        spyphonSender.setup()
+
+        #if spyphonSender.can_memory_buffer() == True:
+        ##    spyphonSender.create_memory_buffer(context.camera.name, 1024)
+
+        # create a off screen renderer
+        offscreen = gpu.types.GPUOffScreen(dWIDTH, dHEIGHT)
+
+        mySpace = context.space_data
+        myRegion = context.region
+ 
+        for area in bpy.data.workspaces[guivars.workspace].screens[0].areas:
+            if area.type == 'VIEW_3D':
+                myRegion = area.regions[0]
+                for spaces in area.spaces:
+                    if spaces.type == 'VIEW_3D':
+                        mySpace = spaces
+
+        myScene = bpy.data.scenes[guivars.scene]
+        myLayer = myScene.view_layers[guivars.layer]
+
+        myCurrentScene = bpy.context.window.scene
+        myCurrentLayer = bpy.context.window.view_layer
+
+        # quickly open the to be rendered scene and layer to avoid a crash of blender
+        bpy.context.window.scene = myScene
+        bpy.context.window.view_layer = myLayer
+
+        bpy.context.window.scene = myCurrentScene
+        bpy.context.window.view_layer = myCurrentLayer
+
+        frame_metadata_buffer = FrameMetDataBuffer("test")
+
+        # collect all the arguments to pass to the draw handler
+        args = (self, context, context.camera, context.object, mySpace, myRegion, myScene, myLayer, offscreen, spyphonSender, guivars.preview, guivars.isflipped, frame_metadata_buffer)
+        
+        # frameHandler = frame_metadata(context.camera.name, frame_metadata_buffer)
+        # bpy.app.handlers.depsgraph_update_post.append(frameHandler)
+
+        # instantiate the draw handler, 
+        # using the texshare_capture function defined above
+        drawhandle = bpy.types.SpaceView3D.draw_handler_add(texshare_capture, args, 'WINDOW', 'POST_PIXEL')
+        
+        # store the references inside the db-dicts
+        #db_frameHandle[dbID] = frameHandler
+        db_drawHandle[dbID] = drawhandle
+        db_spoutInstances[dbID] = spyphonSender
+        
+    # if streaming has been disabled and my ID is still stored in the db
+    if context.camera.texshare.enable == 0 and dbID in db_drawHandle:
+        #bpy.app.handlers.depsgraph_update_post.remove(db_frameHandle[dbID])
+        bpy.types.SpaceView3D.draw_handler_remove(db_drawHandle[dbID], 'WINDOW')
+        db_spoutInstances[dbID].release()
+        #removing my ID
+        db_drawHandle.pop(dbID, None)
+        dbID == "off"
+    
+    # store the database ID again inside the settings
+    context.camera.texshare.dbID = dbID
+
+          
+# main function called when the share receive 'enable' property is changed
+def texshare_receive(self, context):
     global db_drawHandle
     global db_spoutInstances
     
@@ -160,6 +242,7 @@ def texshare_main(self, context):
     # store the database ID again inside the settings
     context.camera.texshare.dbID = dbID
 
+
 class TEXS_OT_ItemCreate(bpy.types.Operator):
     """Create new texture receiver"""
     bl_idname = "textureshare.createitem"
@@ -175,10 +258,10 @@ class TEXS_OT_ItemCreate(bpy.types.Operator):
         return {'FINISHED'}
 
     def invoke(self, context, event):
-        keys = bpy.context.scene.TEXS_keys
+        keys = bpy.context.scene.TEXS_imgs
         new_item = keys.add()
         # we assume the new key is added at the end of the collection, so we get the index by:
-        index = len(bpy.context.scene.TEXS_keys.keys()) -1 
+        index = len(bpy.context.scene.TEXS_imgs.keys()) -1 
         if self.copy == -1:
             new_item.description = "texture share"
         else:
@@ -187,7 +270,7 @@ class TEXS_OT_ItemCreate(bpy.types.Operator):
             new_item.texs_image = keys[self.copy].texs_image
 
         # and now we move the new key to the index just below the original
-        bpy.context.scene.TEXS_keys.move(index, self.copy + 1)
+        bpy.context.scene.TEXS_imgs.move(index, self.copy + 1)
         return {'RUNNING_MODAL'}
 
 #######################################
@@ -209,7 +292,7 @@ class TEXS_OT_ItemDelete(bpy.types.Operator):
         return {'FINISHED'}
 
     def invoke(self, context, event):
-        bpy.context.scene.TEXS_keys.remove(self.index)
+        bpy.context.scene.TEXS_imgs.remove(self.index)
         return {'RUNNING_MODAL'}
 
 
@@ -217,7 +300,6 @@ op_classes = (
     TEXS_OT_ItemCreate,
     TEXS_OT_ItemDelete,
 )
-
 
 def register():
     for cls in op_classes:

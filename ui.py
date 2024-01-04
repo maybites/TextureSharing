@@ -11,69 +11,6 @@ def _label_multiline(context, text, parent):
     for text_line in text_lines:
         parent.label(text=text_line)
 
-class TEXS_PG_camera_texshare_settings(bpy.types.PropertyGroup):
-    enable : bpy.props.BoolProperty(
-        name = "enable",
-        default = 0,
-        description = "Enables texture sharing", 
-        update=operators.texshare_main
-    )
-    hasstarted : bpy.props.BoolProperty(
-        name = "hasstarted",
-        default = 0,
-        description = "Inidicates if sharing has been activated"
-    )
-    isrunning : bpy.props.BoolProperty(
-        name = "isrunning",
-        default = 0,
-        description = "Inidicates if sharing is active"
-    )
-    isflipped : bpy.props.BoolProperty(
-        name = "isflipped",
-        default = 0,
-        description = "Inidicates if the texture is flipped when sharing is active"
-    )
-    applyColorManagmentSettings : bpy.props.BoolProperty(
-        name = "applyColorManagmentSettings",
-        default = 1,
-        description = "Applies the current scene color management settings"
-    )
-    capture_width : bpy.props.IntProperty(
-        name = "Capture width",
-        default = 1280,
-        description = "Capture resolution width in pixels"
-    )
-    capture_height : bpy.props.IntProperty(
-        name = "Capture hight",
-        default = 720,
-        description = "Capture resolution height in pixels"
-    )
-    dbID : bpy.props.StringProperty(
-        name ="database ID",
-        default= "off",
-        description = "referenceID for database"
-    )
-    workspace : bpy.props.StringProperty(
-        name ="workspace",
-        default= "Layout",
-        description = "Workspace from which to use the Overlay and Shading properties"
-        )
-    scene : bpy.props.StringProperty(
-        name ="scene",
-        default= "Scene",
-        description = "Scene to render"
-        )
-    layer : bpy.props.StringProperty(
-        name ="layer",
-        default= "ViewLayer",
-        description = "Layer in Scene to render"
-        )
-    preview : bpy.props.BoolProperty(
-        name ="Preview",
-        default= 0,
-        description = "Show preview of shared texture inside viewport"
-        )
-
 class CameraButtonsPanel:
     bl_space_type = 'PROPERTIES'
     bl_region_type = 'WINDOW'
@@ -90,44 +27,46 @@ class TEXS_PT_camera_texshare( CameraButtonsPanel, Panel ):
     COMPAT_ENGINES = {'BLENDER_RENDER', 'BLENDER_EEVEE', 'BLENDER_WORKBENCH', 'CYCLES', 'BLENDER_EEVEE_NEXT'}
 
     def draw_header(self, context):
-        cam = context.camera
-        self.layout.prop(cam.texshare, "enable", text="", )
+        camera = context.camera
+        settings = camera.TEXS_share
+        self.layout.prop(settings, "enable", text="", )
         
     def draw(self, context):
         layout = self.layout
         ob = context.object
         camera = context.camera
+        settings = camera.TEXS_share
 
         layout.use_property_split = True
 
-        layout.active = 1 - camera.texshare.enable
+        layout.active = 1 - settings.enable
 
         row = layout.row(align=True)
         row.prop(ob.data, "name", text="Sender name")
         
         row = layout.row(align=True)
-        row.prop(camera.texshare, "applyColorManagmentSettings", text="Apply color managment")
+        row.prop(settings, "applyColorManagmentSettings", text="Apply color managment")
 
         row = layout.row(align=True)
-        row.prop(camera.texshare, "isflipped", text="Flip outgoing texture")
+        row.prop(settings, "isflipped", text="Flip outgoing texture")
 
         row = layout.row(align=True)
-        row.prop(camera.texshare, "preview", text="Show Preview")
+        row.prop(settings, "preview", text="Show Preview")
 
         col = layout.column()
 
         sub = col.column(align=True)
-        sub.prop(camera.texshare, "capture_width", slider=True)
-        sub.prop(camera.texshare, "capture_height", slider=True)
+        sub.prop(settings, "capture_width", slider=True)
+        sub.prop(settings, "capture_height", slider=True)
 
         row = layout.row(align=True)
-        row.prop_search(camera.texshare,'workspace',bpy.data,'workspaces',text='Shading')
+        row.prop_search(settings,'workspace',bpy.data,'workspaces',text='Shading')
 
         col = layout.column()
 
         sub = col.column(align=True)
-        sub.prop_search(camera.texshare,'scene',bpy.data,'scenes',text='Scene')
-        sub.prop_search(camera.texshare,'layer',bpy.data.scenes[camera.texshare.scene],'view_layers',text='Layer')
+        sub.prop_search(settings,'scene',bpy.data,'scenes',text='Scene')
+        sub.prop_search(settings,'layer',bpy.data.scenes[settings.scene],'view_layers',text='Layer')
 
             
 #######################################
@@ -137,14 +76,14 @@ class TEXS_PT_camera_texshare( CameraButtonsPanel, Panel ):
 class TEXS_PT_Receiving(bpy.types.Panel):
     bl_category = "Share Texture"
     bl_label = "Receive Textures"
-    bl_space_type = "VIEW_3D"
+    bl_space_type = "IMAGE_EDITOR"
     bl_region_type = "UI"
 
     def draw(self, context):
         layout = self.layout
         col = layout.column()
         index = 0
-        for item in bpy.context.scene.TEXS_keys:
+        for item in bpy.context.scene.TEXS_imgs:
             col_box = col.column()
             box = col_box.box()
             #box.enabled = not envars.isServerRunning
@@ -156,14 +95,14 @@ class TEXS_PT_Receiving(bpy.types.Panel):
                         emboss = False)
 
             sub1 = row.row()
-            sub1.prop(item, "enabled", text = "", 
-                        icon='CHECKBOX_HLT' if item.enabled else 'CHECKBOX_DEHLT', 
+            sub1.prop(item, "enable", text = "", 
+                        icon='CHECKBOX_HLT' if item.enable else 'CHECKBOX_DEHLT', 
                         emboss = False)
             
             sub1.label(icon='IMPORT')
                         
             sub2 = row.row()
-            sub2.active = item.enabled
+            sub2.active = item.enable
             sub2.label(text=item.description)
 
             subsub = sub2.row(align=True)
@@ -184,14 +123,17 @@ class TEXS_PT_Receiving(bpy.types.Panel):
                 colLabel.label(text='source')
                 datapath_row = colData.row(align = True)
                 datapath_row.prop(item, 'texs_source',text='')
-                                              
+
+                colLabel.label(text='image')
+                image_row = colData.row(align = True)
+                image_row.prop(item, 'texs_image',text='')
+
             index = index + 1
 
         layout.operator("textureshare.createitem", icon='PRESET_NEW', text='Create new texture receiver').copy = -1
 
 
 classes = (
-    TEXS_PG_camera_texshare_settings,
     TEXS_PT_camera_texshare,
     TEXS_PT_Receiving
 )
@@ -200,10 +142,7 @@ def register():
     for cls in classes:
         bpy.utils.register_class(cls)
 
-    bpy.types.Camera.texshare = bpy.props.PointerProperty(type=TEXS_PG_camera_texshare_settings)
-
 def unregister():
     for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
 
-    del bpy.types.Camera.texshare
