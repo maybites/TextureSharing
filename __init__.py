@@ -48,7 +48,8 @@ def register():
     try:
         pip_importer.check_modules()
 
-        from . import operators, ui
+        from . import operators, ui, keys
+        keys.register()
         operators.register()
         ui.register()
     except ModuleNotFoundError:
@@ -59,8 +60,10 @@ def register():
 
 def unregister():
     try:
+        from . import operators, ui, keys
         operators.unregister()
         ui.unregister()
+        keys.unregister()
     except Exception:
         pass
 

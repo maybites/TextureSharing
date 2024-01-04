@@ -19,7 +19,6 @@ db_frameHandle = {} # the draw handler
 db_drawHandle = {} # the draw handler 
 db_spoutInstances = {} # the spout instance
 
-
 @dataclass
 class FrameMetDataBuffer:
     content: str = ""
@@ -161,11 +160,71 @@ def texshare_main(self, context):
     # store the database ID again inside the settings
     context.camera.texshare.dbID = dbID
 
+class TEXS_OT_ItemCreate(bpy.types.Operator):
+    """Create new texture receiver"""
+    bl_idname = "textureshare.createitem"
+    bl_label = "Create"
+
+    copy: bpy.props.IntProperty(default=0)
+
+    @classmethod
+    def poll(cls, context):
+        return context.object is not None
+
+    def execute(self, context):
+        return {'FINISHED'}
+
+    def invoke(self, context, event):
+        keys = bpy.context.scene.TEXS_keys
+        new_item = keys.add()
+        # we assume the new key is added at the end of the collection, so we get the index by:
+        index = len(bpy.context.scene.TEXS_keys.keys()) -1 
+        if self.copy == -1:
+            new_item.description = "texture share"
+        else:
+            new_item.description = keys[self.copy].description
+            new_item.texs_source = keys[self.copy].texs_source
+            new_item.texs_image = keys[self.copy].texs_image
+
+        # and now we move the new key to the index just below the original
+        bpy.context.scene.TEXS_keys.move(index, self.copy + 1)
+        return {'RUNNING_MODAL'}
+
+#######################################
+#  Delete TEXS Settings               #
+#######################################
+
+class TEXS_OT_ItemDelete(bpy.types.Operator):
+    """Delete this texture receiver"""
+    bl_idname = "textureshare.deleteitem"
+    bl_label = "Delete"
+
+    index: bpy.props.IntProperty(default=0)
+
+    @classmethod
+    def poll(cls, context):
+        return context.object is not None
+
+    def execute(self, context):
+        return {'FINISHED'}
+
+    def invoke(self, context, event):
+        bpy.context.scene.TEXS_keys.remove(self.index)
+        return {'RUNNING_MODAL'}
+
+
+op_classes = (
+    TEXS_OT_ItemCreate,
+    TEXS_OT_ItemDelete,
+)
+
 
 def register():
-    from bpy.utils import register_class
+    for cls in op_classes:
+        bpy.utils.register_class(cls)
     # nothing
 
 def unregister():
-    from bpy.utils import unregister_class
+    for cls in reversed(op_classes):
+        bpy.utils.unregister_class(cls)
     # nothing

@@ -129,9 +129,71 @@ class TEXS_PT_camera_texshare( CameraButtonsPanel, Panel ):
         sub.prop_search(camera.texshare,'scene',bpy.data,'scenes',text='Scene')
         sub.prop_search(camera.texshare,'layer',bpy.data.scenes[camera.texshare.scene],'view_layers',text='Layer')
 
+            
+#######################################
+#  TEXSHARE RX PANEL                  #
+#######################################
+
+class TEXS_PT_Receiving(bpy.types.Panel):
+    bl_category = "Share Texture"
+    bl_label = "Receive Textures"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+
+    def draw(self, context):
+        layout = self.layout
+        col = layout.column()
+        index = 0
+        for item in bpy.context.scene.TEXS_keys:
+            col_box = col.column()
+            box = col_box.box()
+            #box.enabled = not envars.isServerRunning
+            colsub = box.column()
+            row = colsub.row(align=True)
+
+            row.prop(item, "ui_expanded", text = "", 
+                        icon='DISCLOSURE_TRI_DOWN' if item.ui_expanded else 'DISCLOSURE_TRI_RIGHT', 
+                        emboss = False)
+
+            sub1 = row.row()
+            sub1.prop(item, "enabled", text = "", 
+                        icon='CHECKBOX_HLT' if item.enabled else 'CHECKBOX_DEHLT', 
+                        emboss = False)
+            
+            sub1.label(icon='IMPORT')
+                        
+            sub2 = row.row()
+            sub2.active = item.enabled
+            sub2.label(text=item.description)
+
+            subsub = sub2.row(align=True)
+            subsub.operator("textureshare.createitem", icon='ADD', text='').copy = index
+            subsub.operator("textureshare.deleteitem", icon='PANEL_CLOSE', text = "").index = index
+
+            if item.ui_expanded:
+                dataColumn = colsub.column(align=True)
+                dataSplit = dataColumn.split(factor = 0.2)
+                
+                colLabel = dataSplit.column(align = True)
+                colData = dataSplit.column(align = True)
+                
+                colLabel.label(text='description')
+                address_row = colData.row(align = True)
+                address_row.prop(item, 'description',text='', icon_only = True)
+                           
+                colLabel.label(text='source')
+                datapath_row = colData.row(align = True)
+                datapath_row.prop(item, 'texs_source',text='')
+                                              
+            index = index + 1
+
+        layout.operator("textureshare.createitem", icon='PRESET_NEW', text='Create new texture receiver').copy = -1
+
+
 classes = (
     TEXS_PG_camera_texshare_settings,
-    TEXS_PT_camera_texshare
+    TEXS_PT_camera_texshare,
+    TEXS_PT_Receiving
 )
 
 def register():
