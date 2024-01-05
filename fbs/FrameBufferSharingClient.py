@@ -32,14 +32,14 @@ class FrameBufferSharingClient(ABC):
 		pass
 
 	@staticmethod
-	def create(name: str, server):
+	def create(name: str):
 		if platform.startswith("darwin"):
 			if gpu.platform.backend_type_get() == 'METAL':
 				from .syphon.SyphonMetalClient import SyphonMetalClient
-				return SyphonMetalClient(name, server)
+				return SyphonMetalClient(name)
 			if gpu.platform.backend_type_get() == 'OPENGL':
 				from .syphon.SyphonOpenGLClient import SyphonOpenGLClient
-				return SyphonOpenGLClient(name, server)
+				return SyphonOpenGLClient(name)
 		elif platform.startswith("win"):
 			from .spout.SpoutServer import SpoutServer
 			return SpoutServer(name)

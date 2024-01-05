@@ -1,11 +1,6 @@
 import bpy
 from . import operators
 
-texsServerItems = {
-    ("INPUT", "Input", "Receive the OSC message from somewhere else", "IMPORT", 0),
-    ("OUTPUT", "Output", "Send the OSC message from this node", "EXPORT", 1),
-    ("BOTH", "Both", "Send and Reveive this OSC message", "FILE_REFRESH", 2) }
-
 class TEXS_PG_image_texshare_settings(bpy.types.PropertyGroup):
     #key_path = bpy.props.StringProperty(name="Key", default="Unknown")
     enable: bpy.props.BoolProperty(
@@ -29,13 +24,13 @@ class TEXS_PG_image_texshare_settings(bpy.types.PropertyGroup):
         default = 0,
         description = "Inidicates if the texture is flipped when sharing is active"
     )   
-    description: bpy.props.StringProperty(
-        name="Description", 
-        default="Texture Receiver"
+    name: bpy.props.StringProperty(
+        name="Name", 
+        default="TextureReceiver"
     )
-    texs_source: bpy.props.EnumProperty(
-        name = "RX", 
-        items = texsServerItems
+    texs_server: bpy.props.EnumProperty(
+        name = "Server", 
+        items = operators.fb_directory.directory
     )
     texs_image: bpy.props.PointerProperty(
         name="Image", 

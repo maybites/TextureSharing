@@ -6,6 +6,13 @@ from typing import Optional, Any
 class FrameBufferDirectory(ABC):
 	def __init__(self, name: str):
 		self.name = name
+		self.directory = {}
+		self._reset()
+	
+	def _reset(self):
+		self.directory = {
+    		("OFF", "Off", "No server selected", "IMPORT", -1)
+    	}
 
 	@abstractmethod
 	def setup(self):
@@ -19,8 +26,12 @@ class FrameBufferDirectory(ABC):
 	def has_servers(self):
 		pass
 
+	@abstractmethod
+	def get_server(self, index):
+		pass
+
 	@staticmethod
-	def create(name: str, server):
+	def create(name: str):
 		if platform.startswith("darwin"):
 			from .syphon.SyphonDirectory import SyphonDirectory
 			return SyphonDirectory(name)

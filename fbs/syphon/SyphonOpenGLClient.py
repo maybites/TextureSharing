@@ -19,10 +19,10 @@ class SyphonOpenGLClient(FrameBufferSharingClient):
 		self.ctx = syphon.SyphonOpenGLClient(server)
 
 	def has_new_frame(self):
-		return self.ctx.has_new_frame()
+		return self.ctx.has_new_frame
 
 	def new_frame_image(self):
-		return self.ctx.new_frame_image()
+		return self.ctx.new_frame_image
 
 	def can_memory_buffer(self):
 		return False

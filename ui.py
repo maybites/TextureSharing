@@ -81,6 +81,9 @@ class TEXS_PT_Receiving(bpy.types.Panel):
 
     def draw(self, context):
         layout = self.layout
+
+        layout.operator("textureshare.directoryupdate", icon='WORLD_DATA', text='Update Directory')
+
         col = layout.column()
         index = 0
         for item in bpy.context.scene.TEXS_imgs:
@@ -95,15 +98,18 @@ class TEXS_PT_Receiving(bpy.types.Panel):
                         emboss = False)
 
             sub1 = row.row()
-            sub1.prop(item, "enable", text = "", 
+
+            if item.texs_server != "OFF":
+                sub1.prop(item, "enable", text = "", 
                         icon='CHECKBOX_HLT' if item.enable else 'CHECKBOX_DEHLT', 
                         emboss = False)
             
-            sub1.label(icon='IMPORT')
+                sub1.label(icon='IMPORT')
+
                         
             sub2 = row.row()
             sub2.active = item.enable
-            sub2.label(text=item.description)
+            sub2.label(text=item.name)
 
             subsub = sub2.row(align=True)
             subsub.operator("textureshare.createitem", icon='ADD', text='').copy = index
@@ -116,15 +122,15 @@ class TEXS_PT_Receiving(bpy.types.Panel):
                 colLabel = dataSplit.column(align = True)
                 colData = dataSplit.column(align = True)
                 
-                colLabel.label(text='description')
+                colLabel.label(text='Desc.')
                 address_row = colData.row(align = True)
-                address_row.prop(item, 'description',text='', icon_only = True)
+                address_row.prop(item, 'name',text='', icon_only = True)
                            
-                colLabel.label(text='source')
+                colLabel.label(text='Server')
                 datapath_row = colData.row(align = True)
-                datapath_row.prop(item, 'texs_source',text='')
+                datapath_row.prop(item, 'texs_server',text='')
 
-                colLabel.label(text='image')
+                colLabel.label(text='Image')
                 image_row = colData.row(align = True)
                 image_row.prop(item, 'texs_image',text='')
 
