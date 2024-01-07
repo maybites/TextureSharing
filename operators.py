@@ -61,9 +61,7 @@ def frame_metadata(name, frame_metadata_buffer):
 def write_frame(fb_client, guivars):
     def write_frame_handler(scene, depsgraph):
         if fb_client.has_new_frame() == True:
-            new_texture = fb_client.new_frame_image()
-            target_image = guivars.texs_image
-            print("gone here")
+            fb_client.apply_frame_to_image(guivars.texs_image)
     
     return write_frame_handler
 

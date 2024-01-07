@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+import bpy
 import gpu
 from sys import platform
 from typing import Optional, Any
@@ -17,6 +18,10 @@ class FrameBufferSharingClient(ABC):
 
 	@abstractmethod
 	def new_frame_image(self):
+		pass
+
+	@abstractmethod
+	def apply_frame_to_image(self, target_image: bpy.types.Image):
 		pass
 
 	@abstractmethod

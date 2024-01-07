@@ -2,8 +2,10 @@ from argparse import Namespace, ArgumentParser
 from typing import Optional, Any
 
 import syphon
+from syphon.utils.raw import copy_mtl_texture_to_bytes
 
 import logging
+import bpy
 
 from ..FrameBufferSharingClient import FrameBufferSharingClient
 
@@ -23,6 +25,18 @@ class SyphonMetalClient(FrameBufferSharingClient):
 	def new_frame_image(self):
 		return self.ctx.new_frame_image
 
+	def apply_frame_to_image(self, target_image: bpy.types.Image):
+		new_texture = self.new_frame_image()
+		height = new_texture.height()
+		width = new_texture.width()
+	
+		if (target_image.generated_height != height or target_image.generated_width != width):
+			target_image.scale(width, height)
+
+		data = copy_mtl_texture_to_bytes(new_texture)
+
+		target_image.pixels = [v / 255 for v in data]
+		
 	def can_memory_buffer(self):
 		return False
 
