@@ -1,12 +1,26 @@
-# Texture sharing addon V4.0.0 for Blender 3.0.x
+# Texture sharing addon V5.0.0 for Blender 3.x upwards
 
-Blender addon that allows to share textures via [Spout](http://spout.zeal.co/) or [Syphon](https://syphon.github.io/)  from blender.
+Blender addon that allows to share textures via [Spout](http://spout.zeal.co/) or [Syphon](https://syphon.github.io/) from and to blender.
 
 This works for current Windows and OSX.
 
+⚠️ This library is still *in development*.
+
+## State of Development
+
+- [x] OSX Syphon Metal Server
+- [x] OSX Syphon OpenGL Server
+- [x] OSX Syphon Server Discovery
+- [x] OSX Syphon Metal Client (blender 4.x upwards) 
+- [ ] OSX Syphon OpenGL Client
+
+- [x] Windows Spout Sender
+- [ ] Windows Spout Server Discovery
+- [ ] Windows Spout Receiver
+
 ## Installation
 
-Please make sure you have the most current Blender 3.0.x installed.
+Please make sure you have the most current Blender installed.
 
 1. [Download](https://github.com/maybites/blender.script.spout/releases) the addon from the **releases**
 
@@ -16,13 +30,13 @@ Please make sure you have the most current Blender 3.0.x installed.
 
 4. Once the library is installed, disable and reenable the addon.
 
-5. Play around with the **Viewport Antialiasing Settings** - lower pass numbers can increase the performance.
-
-6. Save and close preferences.
+5. Save and close preferences.
 
 ## Usage
 
-Currently it is only possible to send Spout and Syphon streams, but not to receive them.
+See the current limitation above under **State of Development**
+
+### Sharing Textures
 
 For sharing you need a **Camera** object.
 
@@ -39,6 +53,25 @@ The plugin adds a panel to the **Camera** properties called 'Share texture'. The
 * chose a scene and layer setup to render.
 
 You should be able to create as many **Cameras** and share textures as you wish.
+
+### Receiving Shared Textures
+
+The plugin adds a panel to the UV-Editor Tools 'Share texture'.
+
+![Panel](./documentation/receivePanel.png)
+
+* create a new image and name it accordingly (in the above case 'Syphon')
+* press update to get all available shared textures.
+* select a sender/server
+* press 'create'
+* select the image inside the pane.
+* enable the receiver
+
+The receiver will automatically adjust the image size to the size of the received texture. 
+
+Caveat: With the current implementation the update speed is very low (a few frames a second). 
+Thats because the received texture needs to be copied from the GPU into an image buffer on the CPU.
+For the time beeing I dont see another way to solve this.
 
 ## Credits
 

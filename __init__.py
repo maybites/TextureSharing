@@ -16,7 +16,7 @@ bl_info = {
     "author" : "Martin Froehlich, Florian Bruggisser",
     "description" : "Sharing Textures via Spout or Syphon from Blender",
     "blender" : (3, 0, 0),
-    "version" : (4, 0, 0),
+    "version" : (5, 0, 0),
     "doc_url" : "https://github.com/maybites/blender-texture-sharing",
     "location" : "Properties > Camera > Camera data",
     "category" : "Render", 

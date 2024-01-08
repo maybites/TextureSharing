@@ -2,8 +2,12 @@ from argparse import Namespace, ArgumentParser
 from typing import Optional, Any
 
 import syphon
+from syphon.utils.raw import copy_mtl_texture_to_bytes
+from syphon.utils.numpy import copy_mtl_texture_to_image
 
 import logging
+import bpy
+import numpy as np
 
 from ..FrameBufferSharingClient import FrameBufferSharingClient
 
@@ -15,7 +19,6 @@ class SyphonOpenGLClient(FrameBufferSharingClient):
 		self.texture: Optional[Any] = None
 
 	def setup(self, server):
-		# setup metal syphon server
 		self.ctx = syphon.SyphonOpenGLClient(server)
 
 	def has_new_frame(self):
@@ -23,6 +26,12 @@ class SyphonOpenGLClient(FrameBufferSharingClient):
 
 	def new_frame_image(self):
 		return self.ctx.new_frame_image
+
+	def apply_frame_to_image(self, target_image: bpy.types.Image):
+		new_texture = self.new_frame_image()
+		size = new_texture.textureSize()
+		width, height = int(size.width), int(size.height)
+		texture = new_texture.textureName()	
 
 	def can_memory_buffer(self):
 		return False

@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-import gpu
+import bpy
 from sys import platform
 from typing import Optional, Any
 
@@ -11,7 +11,7 @@ class FrameBufferDirectory(ABC):
 	
 	def _reset(self):
 		self.directory = {
-    		("OFF", "Off", "No server selected", "IMPORT", -1)
+    		("OFF", "Off", "No server selected", "WORLD_DATA", -1)
     	}
 
 	@abstractmethod
@@ -27,8 +27,18 @@ class FrameBufferDirectory(ABC):
 		pass
 
 	@abstractmethod
-	def get_server(self, index):
+	def get_server(self, server_name):
 		pass
+
+	def register(self):
+		bpy.types.Scene.TEXS_servers = bpy.props.EnumProperty(
+        	items=self.directory,
+        	name="Server",
+			default="OFF"
+		)
+
+	def unregister(self):
+		del bpy.types.Scene.TEXS_servers
 
 	@staticmethod
 	def create(name: str):
@@ -36,7 +46,7 @@ class FrameBufferDirectory(ABC):
 			from .syphon.SyphonDirectory import SyphonDirectory
 			return SyphonDirectory(name)
 		elif platform.startswith("win"):
-			from .spout.SpoutServer import SpoutServer
-			return SpoutServer(name)
+			from .spout.SpoutDirectory import SpoutDirectory
+			return SpoutDirectory(name)
 		else:
 			raise Exception(f"Platform {platform} is not supported!")

@@ -1,5 +1,6 @@
 import bpy
 from bpy.types import Panel
+from sys import platform
 import textwrap
 from . import operators
 
@@ -82,8 +83,6 @@ class TEXS_PT_Receiving(bpy.types.Panel):
     def draw(self, context):
         layout = self.layout
 
-        layout.operator("textureshare.directoryupdate", icon='WORLD_DATA', text='Update Directory')
-
         col = layout.column()
         index = 0
         for item in bpy.context.scene.TEXS_imgs:
@@ -99,7 +98,7 @@ class TEXS_PT_Receiving(bpy.types.Panel):
 
             sub1 = row.row()
 
-            if item.texs_server != "OFF":
+            if item.texs_server != "OFF" and item.texs_image != None:
                 sub1.prop(item, "enable", text = "", 
                         icon='CHECKBOX_HLT' if item.enable else 'CHECKBOX_DEHLT', 
                         emboss = False)
@@ -108,23 +107,19 @@ class TEXS_PT_Receiving(bpy.types.Panel):
 
                         
             sub2 = row.row()
-            sub2.active = item.enable
-            sub2.label(text=item.name)
+            sub2.label(text=item.texs_server)
 
-            subsub = sub2.row(align=True)
-            subsub.operator("textureshare.createitem", icon='ADD', text='').copy = index
-            subsub.operator("textureshare.deleteitem", icon='PANEL_CLOSE', text = "").index = index
+            if not item.enable:
+                subsub = sub2.row(align=True)
+                subsub.operator("textureshare.deleteitem", icon='PANEL_CLOSE', text = "").index = index
 
             if item.ui_expanded:
+                colsub.active = not item.enable
                 dataColumn = colsub.column(align=True)
                 dataSplit = dataColumn.split(factor = 0.2)
                 
                 colLabel = dataSplit.column(align = True)
                 colData = dataSplit.column(align = True)
-                
-                colLabel.label(text='Desc.')
-                address_row = colData.row(align = True)
-                address_row.prop(item, 'name',text='', icon_only = True)
                            
                 colLabel.label(text='Server')
                 datapath_row = colData.row(align = True)
@@ -136,7 +131,17 @@ class TEXS_PT_Receiving(bpy.types.Panel):
 
             index = index + 1
 
-        layout.operator("textureshare.createitem", icon='PRESET_NEW', text='Create new texture receiver').copy = -1
+        generate = layout.column()
+        dataSplit = generate.split(factor = 0.8)
+
+        gen_server = dataSplit.column(align = True)
+        gen_server.prop(context.scene, "TEXS_servers", text='')
+
+        gen_refresh = dataSplit.column(align = True)
+        gen_refresh.operator("textureshare.directoryupdate", text='Update')
+
+        gen_create = generate.row(align = True)
+        gen_create.operator("textureshare.createitem", icon='PRESET_NEW', text='Create new texture receiver').copy = -1
 
 
 classes = (
@@ -145,10 +150,13 @@ classes = (
 )
 
 def register():
-    for cls in classes:
-        bpy.utils.register_class(cls)
+    bpy.utils.register_class(TEXS_PT_camera_texshare)
+    if platform.startswith("darwin"):
+        bpy.utils.register_class(TEXS_PT_Receiving)
+
 
 def unregister():
-    for cls in reversed(classes):
-        bpy.utils.unregister_class(cls)
+    bpy.utils.unregister_class(TEXS_PT_camera_texshare)
+    if platform.startswith("darwin"):
+        bpy.utils.register_class(TEXS_PT_Receiving)
 

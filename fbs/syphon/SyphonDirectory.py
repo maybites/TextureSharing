@@ -24,11 +24,18 @@ class SyphonDirectory(FrameBufferDirectory):
 		self.servers = self.ctx.servers
 		index = 0
 		for server in self.servers:
-			self.directory.add((server.app_name, server.app_name, server.name, "IMPORT", index))
+			server_title = server.app_name
+			if server.name != '':
+				server_title = server_title + " | " + server.name
+
+			self.directory.add((server_title, server_title, server_title, "WORLD_DATA", index))
 			index += 1
+		self.register()
 
 	def has_servers(self):
 		return not not self.servers
 
-	def get_server(self, index):
-		return self.servers[index]
+	def get_server(self, server_name):
+		for items in self.directory:
+			if items[0] == server_name:
+				return self.servers[items[4]]

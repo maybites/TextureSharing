@@ -35,13 +35,9 @@ class SyphonMetalClient(FrameBufferSharingClient):
 		if (target_image.generated_height != height or target_image.generated_width != width):
 			target_image.scale(width, height)
 
-		# data = copy_mtl_texture_to_bytes(new_texture)
-		# target_image.pixels = [v / 255 for v in data]
-
 		image = copy_mtl_texture_to_image(new_texture)
 		byte_to_normalized = 1.0 / 255.0
 		target_image.pixels[:] = (image.astype(float) * byte_to_normalized).ravel()
-
 
 	def can_memory_buffer(self):
 		return False

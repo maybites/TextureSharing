@@ -1,6 +1,11 @@
 import bpy
 from . import operators
 
+# Read-only string property
+def get_server_name(self):
+    data = bpy.context.scene.TEXS_servers
+    return data
+
 class TEXS_PG_image_texshare_settings(bpy.types.PropertyGroup):
     #key_path = bpy.props.StringProperty(name="Key", default="Unknown")
     enable: bpy.props.BoolProperty(
@@ -28,9 +33,9 @@ class TEXS_PG_image_texshare_settings(bpy.types.PropertyGroup):
         name="Name", 
         default="TextureReceiver"
     )
-    texs_server: bpy.props.EnumProperty(
+    texs_server: bpy.props.StringProperty(
         name = "Server", 
-        items = operators.fb_directory.directory
+        get=get_server_name
     )
     texs_image: bpy.props.PointerProperty(
         name="Image", 
@@ -122,7 +127,7 @@ def register():
 
     bpy.types.Scene.TEXS_imgs = bpy.props.CollectionProperty(type=TEXS_PG_image_texshare_settings)
     bpy.types.Camera.TEXS_share = bpy.props.PointerProperty(type=TEXS_PG_camera_texshare_settings)
-
+    
 
 def unregister():
     for cls in reversed(key_classes):

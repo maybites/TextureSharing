@@ -6,7 +6,6 @@ from gpu_extras.presets import draw_texture_2d
 import json
 from dataclasses import dataclass
 
-
 try:
     from .fbs.FrameBufferSharingServer import FrameBufferSharingServer
     from .fbs.FrameBufferSharingClient import FrameBufferSharingClient
@@ -15,10 +14,6 @@ except ModuleNotFoundError as ex:
     print(f"Could not load FrameSharingModule: {ex}")
 
 import uuid
-
-texs_server_items = {
-    ("OFF", "Off", "No server selected", "IMPORT", -1)
-    }
 
 fb_directory = FrameBufferDirectory.create("FrameBufferDirectory")
 fb_directory.setup()
@@ -67,9 +62,11 @@ def write_frame(fb_client, guivars):
 
 # function for the draw handler to capture the texture from the perspective of the camera
 def texshare_capture(self, context, camera, object, space, region, scene, layer, offscreen, spyphonSender, showPreview, isFlipped, frame_metadata_buffer):
-    dWIDTH = camera.texshare.capture_width
-    dHEIGHT = camera.texshare.capture_height
-    applyCM = camera.texshare.applyColorManagmentSettings
+    guivars = camera.TEXS_share
+
+    dWIDTH = guivars.capture_width
+    dHEIGHT = guivars.capture_height
+    applyCM = guivars.applyColorManagmentSettings
 
     view_matrix = object.matrix_world.inverted()
 
@@ -108,7 +105,7 @@ def texshare_send(self, context):
     dbID = guivars.dbID
     
     # if streaming has been enabled and no id has yet been stored in the db
-    if context.camera.texshare.enable == 1 and dbID not in db_drawHandle:
+    if guivars.enable == 1 and dbID not in db_drawHandle:
         # first we create a unique identifier for the reference db dicts
         dbID = str(uuid.uuid1())
         updateDraw = False
@@ -167,7 +164,7 @@ def texshare_send(self, context):
         db_cameraInstances[dbID] = fbSender
         
     # if streaming has been disabled and my ID is still stored in the db
-    if context.camera.texshare.enable == 0 and dbID in db_drawHandle:
+    if guivars.enable == 0 and dbID in db_drawHandle:
         #bpy.app.handlers.depsgraph_update_post.remove(db_frameHandle[dbID])
         bpy.types.SpaceView3D.draw_handler_remove(db_drawHandle[dbID], 'WINDOW')
         db_cameraInstances[dbID].release()
@@ -176,7 +173,7 @@ def texshare_send(self, context):
         dbID == "off"
     
     # store the database ID again inside the settings
-    context.camera.texshare.dbID = dbID
+    guivars.dbID = dbID
 
           
 # main function called when the share receive 'enable' property is changed
@@ -194,10 +191,12 @@ def texshare_receive(self, context):
         # first we create a unique identifier for the reference db dicts
         dbID = str(uuid.uuid1())
         updateDraw = False
+
+        server = guivars.texs_server
         
         # create a new spout sender instance
-        fb_client = FrameBufferSharingClient.create(guivars.name)
-        fb_client.setup(fb_directory.get_server(0))
+        fb_client = FrameBufferSharingClient.create(server)
+        fb_client.setup(fb_directory.get_server(server))
 
         # create a off screen renderer
         # offscreen = gpu.types.GPUOffScreen(dWIDTH, dHEIGHT)
@@ -287,6 +286,8 @@ class TEXS_OT_DirUpdate(bpy.types.Operator):
     bl_idname = "textureshare.directoryupdate"
     bl_label = "Update"
 
+    global fb_directory
+
     @classmethod
     def poll(cls, context):
         return context.object is not None
@@ -298,10 +299,6 @@ class TEXS_OT_DirUpdate(bpy.types.Operator):
         fb_directory.update()
         return {'RUNNING_MODAL'}
 
-def texs_update_directory(self, context):
-    fb_directory.update()
-
-
 op_classes = (
     TEXS_OT_ItemCreate,
     TEXS_OT_ItemDelete,
@@ -311,9 +308,11 @@ op_classes = (
 def register():
     for cls in op_classes:
         bpy.utils.register_class(cls)
-    # nothing
+
+    fb_directory.register()
 
 def unregister():
     for cls in reversed(op_classes):
         bpy.utils.unregister_class(cls)
-    # nothing
+
+    fb_directory.unregister()

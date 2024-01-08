@@ -172,8 +172,8 @@ class PiPPreferences(AddonPreferences):
 
         allInstalled = True
 
-        layout.label(text="Ideal setting for usage of texture sharing is: Single pass Anti-Aliasing")
-        layout.prop(system, "viewport_aa")
+        # layout.label(text="Ideal setting for usage of texture sharing is: Single pass Anti-Aliasing")
+        # layout.prop(system, "viewport_aa")
  
         for package in pip_packages:
             box = layout.box()
