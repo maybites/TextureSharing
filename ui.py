@@ -43,6 +43,9 @@ class TEXS_PT_camera_texshare( CameraButtonsPanel, Panel ):
         layout.active = 1 - settings.enable
 
         row = layout.row(align=True)
+        row.prop(settings, "streamingType", text="Streaming Type")
+
+        row = layout.row(align=True)
         row.prop(ob.data, "name", text="Sender name")
         
         row = layout.row(align=True)

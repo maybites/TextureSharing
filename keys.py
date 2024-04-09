@@ -1,6 +1,11 @@
 import bpy
 from . import operators
 
+streamingTypeItems = {
+    ("SPOUT", "Spout / Syphon", "Use Spout (for Windows) or Syphon (for OSX) for streaming", "NONE", 0),
+    ("NDI", "NDI", "Use NDI for streaming", "NONE", 1)
+    }
+
 # Read-only string property
 def get_server_name(self):
     data = bpy.context.scene.TEXS_servers
@@ -53,6 +58,11 @@ class TEXS_PG_image_texshare_settings(bpy.types.PropertyGroup):
 
 
 class TEXS_PG_camera_texshare_settings(bpy.types.PropertyGroup):
+    streamingType: bpy.props.EnumProperty(
+        name = "streaming type", 
+        default = "SPOUT", 
+        items = streamingTypeItems
+    )
     enable : bpy.props.BoolProperty(
         name = "enable",
         default = 0,
@@ -98,22 +108,22 @@ class TEXS_PG_camera_texshare_settings(bpy.types.PropertyGroup):
         name ="workspace",
         default= "Layout",
         description = "Workspace from which to use the Overlay and Shading properties"
-        )
+    )
     scene : bpy.props.StringProperty(
         name ="scene",
         default= "Scene",
         description = "Scene to render"
-        )
+    )
     layer : bpy.props.StringProperty(
         name ="layer",
         default= "ViewLayer",
         description = "Layer in Scene to render"
-        )
+    )
     preview : bpy.props.BoolProperty(
         name ="Preview",
         default= 0,
         description = "Show preview of shared texture inside viewport"
-        )
+    )
 
 
 key_classes = (

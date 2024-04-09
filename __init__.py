@@ -42,11 +42,21 @@ def register():
     if platform.system() == "Darwin":  
         pip_importer.add_package(pip_importer.Package("syphon-python", version="==0.1.0", custom_module="syphon"))
 
+    pip_importer.add_package(pip_importer.Package("ndi-python", version="==5.1.1.1", custom_module="NDIlib"))
+
     # pip_importer.auto_install_packages()
 
     # Check required modules availability
     try:
-        pip_importer.check_modules()
+        for package in pip_importer.pip_packages:
+            if package.module == "NDIlib":
+                pip_importer.check_module(package)
+                import NDIlib as ndi
+                if not ndi.initialize():
+                    return 0        
+            else:
+                pip_importer.check_module(package)
+
 
         from . import operators, ui, keys
         keys.register()
@@ -54,7 +64,7 @@ def register():
         ui.register()
     except ModuleNotFoundError:
         print(
-            "Addon isn't available, install required module via Properties > Addons > Spout"
+            "Addon isn't available, install required module via Properties > Addons > TextureSharing"
         )
 
 
@@ -66,6 +76,12 @@ def unregister():
         keys.unregister()
     except Exception:
         pass
+
+    # clean up NDI
+    for package in pip_importer.pip_packages:
+        if package.module == "NDIlib":
+            import NDIlib as ndi
+            ndi.destroy()
 
     pip_importer.unregister()
 

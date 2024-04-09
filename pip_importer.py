@@ -65,20 +65,8 @@ def check_module(package):
 def check_modules():
     # Note: Blender might be installed in a directory that needs admin rights and thus defaulting to a user installation.
     # That path however might not be in sys.path....
-    import sys, site
-
-    p = site.USER_SITE
-    if p not in sys.path:
-        sys.path.append(p)
     for package in pip_packages:
-        try:
-            __import__(package.module)
-
-            package._registered = True
-        except ModuleNotFoundError as e:
-            package._registered = False
-            raise e
-
+        check_module(package)
 
 def get_prefs():
     return bpy.context.preferences.addons[__package__].preferences
@@ -227,6 +215,7 @@ class Pip_Refresh_package(Operator):
 
         if install_package(package):
             try:
+                self.report({"INFO"}, "Testing Package {} import..".format(package.module))
                 check_module(package)
                 self.report({"INFO"}, "Package successfully installed")
             except ModuleNotFoundError:
@@ -280,6 +269,7 @@ class Pip_Install_packages(Operator):
         for package in pip_packages:
             if install_package(package):
                 try:
+                    self.report({"INFO"}, "Testing Package {} import..".format(package.module))
                     check_module(package)
                     self.report({"INFO"}, "Package successfully installed")
                 except ModuleNotFoundError:
