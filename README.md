@@ -1,8 +1,8 @@
-# Texture sharing addon V5.0.0 for Blender 3.x upwards
+# Texture sharing addon V6.0.0 for Blender 3.x upwards
 
-Blender addon that allows to share textures via [Spout](http://spout.zeal.co/) or [Syphon](https://syphon.github.io/) from and to blender.
+Blender addon that allows to share textures via [Spout](http://spout.zeal.co/) or [Syphon](https://syphon.github.io/) or [NDI](https://ndi.video) from and to blender.
 
-This works for current Windows and OSX.
+This works for current Windows (Spout & NDI), Linux (NDI) and OSX (Syphon & NDI).
 
 ⚠️ This library is still *in development*.
 
@@ -15,10 +15,20 @@ This works for current Windows and OSX.
 - [ ] OSX Syphon OpenGL Client
 
 - [x] Windows Spout Sender
-- [ ] Windows Spout Server Discovery
+- [ ] Windows Spout Sender Discovery
 - [ ] Windows Spout Receiver
 
+- [x] NDI Sender
+- [ ] NDI Sender Discovery
+- [ ] NDI Receiver
+
 ## Installation
+
+### Requirements
+
+If you want to use NDI, donwload and install [NDI SDK](https://ndi.video/download-ndi-sdk/) before you continue intalling the addon.
+
+### Steps
 
 Please make sure you have the most current Blender installed.
 
@@ -26,11 +36,13 @@ Please make sure you have the most current Blender installed.
 
 2. Open Blender > Menu >  Preferences > Add-ons > search for and enable the 'TextureSharing' add-on  
 
-3. Press the button to install the SpoutGL or syphon-python library via pip.
+3. If available, press the button to install the SpoutGL or syphon-python library via pip.
 
-4. Once the library is installed, disable and reenable the addon.
+4. Press the button to install the NDI library via pip.
 
-5. Save and close preferences.
+5. Once the library is installed, disable and reenable the addon.
+
+6. Save and close preferences.
 
 ## Usage
 
@@ -44,6 +56,7 @@ The plugin adds a panel to the **Camera** properties called 'Share texture'. The
 
 ![Panel](./documentation/panel.png)
 
+* The streaming type (NDI, Spout or Syphon)
 * The sender (also known as syphon-server) name is default set to the camera name.
 * use color management (recommended).
 * vertical flip of the output texture.

@@ -23,7 +23,6 @@ class NDIServer(FrameBufferSharingServer):
 
         self.width = 1920
         self.height = 1080
-        self.img = np.zeros((self.height, self.width, 4), dtype=np.uint8)
 
     def setup(self):
         # setup spout
@@ -34,8 +33,8 @@ class NDIServer(FrameBufferSharingServer):
         self.ndi_send = ndi.send_create(self.send_settings)
 
         self.video_frame = ndi.VideoFrameV2()
-        self.video_frame.data = self.img
         self.video_frame.FourCC = ndi.FOURCC_VIDEO_TYPE_BGRX
+        self.video_frame.frame_format_type  = ndi.FRAME_FORMAT_TYPE_PROGRESSIVE
 
     def draw_texture(self, offscreen: gpu.types.GPUOffScreen, rect_pos: tuple[int, int], width: int, height: int):
         draw_texture_2d(offscreen.color_texture, rect_pos, width, height)
@@ -43,17 +42,15 @@ class NDIServer(FrameBufferSharingServer):
     def send_texture(self, offscreen:  gpu.types.GPUOffScreen, width: int, height: int, is_flipped: bool = False):
         # offscreen is type https://docs.blender.org/api/current/gpu.types.html#gpu.types.GPUOffScreen
         texture = offscreen.texture_color # returns https://docs.blender.org/api/current/gpu.types.html#gpu.types.GPUTexture
-
-        buffer = texture.read()
         
         if (texture.height != self.height or texture.width != self.width):
             self.height = texture.height
             self.width = texture.width
-            self.img = np.zeros((self.height, self.width, 4), dtype=np.uint8)
+            self.video_frame.xres = self.width
+            self.video_frame.yres = self.height
 
-        self.img = np.array(buffer)
-        self.video_frame.data = self.img
-        self.video_frame.FourCC = ndi.FOURCC_VIDEO_TYPE_RGBA
+        self.video_frame.data = texture.read()        
+        self.video_frame.line_stride_in_bytes  = self.width * 4
         
         ndi.send_send_video_v2(self.ndi_send, self.video_frame)
 

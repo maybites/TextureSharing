@@ -61,6 +61,8 @@ def check_module(package):
     except ModuleNotFoundError as e:
         package._registered = False
         raise e
+    
+    return True
 
 def check_modules():
     # Note: Blender might be installed in a directory that needs admin rights and thus defaulting to a user installation.

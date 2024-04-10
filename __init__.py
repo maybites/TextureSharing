@@ -14,9 +14,9 @@
 bl_info = {
     "name" : "TextureSharing",
     "author" : "Martin Froehlich, Florian Bruggisser",
-    "description" : "Sharing Textures via Spout or Syphon from Blender",
+    "description" : "Sharing Textures via NDI, Spout or Syphon from Blender",
     "blender" : (3, 0, 0),
-    "version" : (5, 0, 0),
+    "version" : (6, 0, 0),
     "doc_url" : "https://github.com/maybites/blender-texture-sharing",
     "location" : "Properties > Camera > Camera data",
     "category" : "Render", 
@@ -50,18 +50,28 @@ def register():
     try:
         for package in pip_importer.pip_packages:
             if package.module == "NDIlib":
-                pip_importer.check_module(package)
-                import NDIlib as ndi
-                if not ndi.initialize():
-                    return 0        
+                if pip_importer.check_module(package):
+                    import NDIlib as ndi
+                    if not ndi.initialize():
+                        return 0        
             else:
                 pip_importer.check_module(package)
 
-
         from . import operators, ui, keys
+        # add UI elements
+        for package in pip_importer.pip_packages:
+            if package.module == "NDIlib":
+                if pip_importer.check_module(package):
+                    keys.add_streaming_type(("NDI", "NDI", "Use NDI for streaming", "NONE", 1))
+            else:
+                if pip_importer.check_module(package):
+                    keys.add_streaming_type(("SPOUT", "Spout / Syphon", "Use Spout (for Windows) or Syphon (for OSX) for streaming", "NONE", 0))
+
         keys.register()
         operators.register()
         ui.register()
+
+
     except ModuleNotFoundError:
         print(
             "Addon isn't available, install required module via Properties > Addons > TextureSharing"
@@ -80,8 +90,9 @@ def unregister():
     # clean up NDI
     for package in pip_importer.pip_packages:
         if package.module == "NDIlib":
-            import NDIlib as ndi
-            ndi.destroy()
+            if pip_importer.check_module(package):
+                import NDIlib as ndi
+                ndi.destroy()
 
     pip_importer.unregister()
 

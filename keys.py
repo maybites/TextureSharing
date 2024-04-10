@@ -1,10 +1,41 @@
 import bpy
 from . import operators
 
-streamingTypeItems = {
-    ("SPOUT", "Spout / Syphon", "Use Spout (for Windows) or Syphon (for OSX) for streaming", "NONE", 0),
-    ("NDI", "NDI", "Use NDI for streaming", "NONE", 1)
-    }
+streamingTypeItems = {}
+
+def add_streaming_type(item):
+    """
+    Adds a new streaming type item to the set with type checking.
+
+    Parameters:
+    - target_set: The set to which the item will be added.
+    - item: The item to add, expected to be a tuple with a specific structure.
+
+    Raises:
+    - ValueError: If the item does not match the expected structure or types.
+    """
+
+    global streamingTypeItems
+    
+    # Check that the item is a tuple
+    if not isinstance(item, tuple):
+        raise ValueError("Item must be a tuple.")
+    
+    # Check the length of the tuple
+    if len(item) != 5:
+        raise ValueError("Item must be a tuple of length 5.")
+    
+    # Check the types of each element in the tuple
+    if not (isinstance(item[0], str) and 
+            isinstance(item[1], str) and 
+            isinstance(item[2], str) and 
+            isinstance(item[3], str) and 
+            isinstance(item[4], int)):
+        raise ValueError("Item does not match the expected types.")
+    
+    # Add the item to the set
+    streamingTypeItems.add(item)
+
 
 # Read-only string property
 def get_server_name(self):
