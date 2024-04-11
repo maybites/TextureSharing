@@ -62,15 +62,14 @@ def register():
         for package in pip_importer.pip_packages:
             if package.module == "NDIlib":
                 if pip_importer.check_module(package):
-                    keys.add_streaming_type(("NDI", "NDI", "Use NDI for streaming", "NONE", 1))
+                    keys.add_streaming_type_ndi(keys.streamingTypeItems)
             else:
                 if pip_importer.check_module(package):
-                    keys.add_streaming_type(("SPOUT", "Spout / Syphon", "Use Spout (for Windows) or Syphon (for OSX) for streaming", "NONE", 0))
+                    keys.add_streaming_type_spout(keys.streamingTypeItems)
 
         keys.register()
         operators.register()
         ui.register()
-
 
     except ModuleNotFoundError:
         print(

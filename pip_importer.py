@@ -1,9 +1,6 @@
 from typing import Optional
 from dataclasses import dataclass
 import bpy
-from bpy.props import (
-    StringProperty,
-)
 
 from bpy.types import AddonPreferences, Panel, Menu
 from bpy.types import Operator
@@ -21,13 +18,30 @@ pip_packages = []
 # flag to indicate if the required packages were imported in this session 
 just_imported = False
 
+class SpoutAddonProperties(bpy.types.PropertyGroup):
+    # Define a StringProperty for the filepath
+    my_file_path: bpy.props.StringProperty(
+        name="Wheel file",
+        description="Path to the file",
+        default="",
+        maxlen=1024,
+        subtype='FILE_PATH'  # This subtype turns the StringProperty into a file picker
+    )
+    
 @dataclass
 class Package:
     name: str
     custom_module: Optional[str] = None
     version: str = ""
+    pip_manual: bool = False
+    _checked: bool = False
     _registered: bool = False
-
+    _summary: str = ""
+    _home_page: str = ""
+    _author: str = ""
+    _license: str = ""
+    _location: str = ""
+    
     @property
     def module(self) -> str:
         if self.custom_module is None:
@@ -49,21 +63,45 @@ def auto_install_packages():
 def check_module(package):
     # Note: Blender might be installed in a directory that needs admin rights and thus defaulting to a user installation.
     # That path however might not be in sys.path....
-    import sys, site
+    if package._checked == False:
+        import sys, site
 
-    p = site.USER_SITE
-    if p not in sys.path:
-        sys.path.append(p)
-    try:
-        __import__(package.module)
+        p = site.USER_SITE
+        if p not in sys.path:
+            sys.path.append(p)
+        try:
+            cmd = [PYPATH, "-m", "pip", "show",  package.name]
+            result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
-        package._registered = True
-    except ModuleNotFoundError as e:
-        package._registered = False
-        raise e
+            package._checked = True
+
+            # Initialize an empty dictionary
+            data = {}
+
+            # Split the output into lines and parse each line
+            for line in result.stdout.splitlines():
+                if ": " in line:
+                    key, value = line.split(": ", 1)  # Only split on the first occurrence
+                    data[key.strip()] = value.strip()
+            
+            if len(data) > 0:
+                # there seems to be a valid module installed
+                package._summary = data.get('Summary')
+                package._home_page = data.get('Home-page')
+                package._author = data.get('Author')
+                package._license = data.get('License')
+                package._location = data.get('Location')
+
+                # check if the module can be properly imported..
+                __import__(package.module)
+
+                package._registered = True
+                        
+        except ModuleNotFoundError as e:
+            package._registered = False
     
-    return True
-
+    return package._registered
+        
 def check_modules():
     # Note: Blender might be installed in a directory that needs admin rights and thus defaulting to a user installation.
     # That path however might not be in sys.path....
@@ -85,12 +123,14 @@ def update_pip():
 
 def install_package(package):
     update_pip()
+    package._checked = False
     cmd = [PYPATH, "-m", "pip", "install", "--upgrade", f"{package.name}{package.version}"]
     ok = subprocess.call(cmd) == 0
     return ok
 
 def uninstall_package(package):
     update_pip()
+    package._checked = False
     cmd = [PYPATH, "-m", "pip", "uninstall", "-y", package.name]
     ok = subprocess.call(cmd) == 0
     return ok
@@ -148,17 +188,12 @@ class PiPPreferences(AddonPreferences):
     bl_idname = __package__
     bl_label = "pip installer"
 
-    package_path: StringProperty(
-        name="Package Filepath",
-        description="Filepath to the module's .whl file",
-        subtype="FILE_PATH",
-        default=get_wheel(),
-    )
-
     def draw(self, context):
         layout = self.layout
         layout.use_property_split = True
         system = context.preferences.system
+        scene = context.scene
+        spout_addon_props = scene.spout_addon_props
 
         allInstalled = True
 
@@ -172,27 +207,19 @@ class PiPPreferences(AddonPreferences):
             if package._registered:
                 row.label(text="Registered", icon="CHECKMARK")
                 module = sys.modules[package.module]
-                if hasattr(module, '__path__'):
-                    row.label(text="Path: " + module.__path__[0])
-                row.operator(
-                    Pip_Refresh_package.bl_idname,
-                    text="refresh",
-                ).package_path=package.name
+                row.label(text=package._location)
                 row.operator(
                     Pip_Uninstall_package.bl_idname,
                     text="uninstall",
                 ).package_path=package.name
             else:
                 allInstalled = False
-                row.label(text="NotFound", icon="CANCEL")
-                
-        if  allInstalled is False:    
-            box = layout.box()
-            row = box.row()
-            row.operator(
-                    Pip_Install_packages.bl_idname,
-                    text="Install from PIP"
-                )
+                row.label(text="Not installed", icon="CANCEL")
+                row.prop(spout_addon_props, 'my_file_path')
+                row.operator(
+                        Pip_Install_packages.bl_idname,
+                        text="install"
+                    ).package_path=package.name
 
         if just_imported:
             box = layout.box()
@@ -216,11 +243,10 @@ class Pip_Refresh_package(Operator):
             return {"CANCELLED"}
 
         if install_package(package):
-            try:
-                self.report({"INFO"}, "Testing Package {} import..".format(package.module))
-                check_module(package)
+            self.report({"INFO"}, "Testing Package {} import..".format(package.module))
+            if check_module(package):
                 self.report({"INFO"}, "Package successfully installed")
-            except ModuleNotFoundError:
+            else:
                 self.report({"WARNING"}, "Package should be available but cannot be found, check console for detailed info. Try restarting blender, otherwise get in contact.")
             show_package_info(package)
         else:
@@ -260,6 +286,8 @@ class Pip_Install_packages(Operator):
     bl_idname = "view3d.pip_install_packages"
     bl_label = "Install"
 
+    package_path: bpy.props.StringProperty(subtype="FILE_PATH")
+
     def execute(self, context):
         if not ensure_pip():
             self.report(
@@ -268,17 +296,17 @@ class Pip_Install_packages(Operator):
             )
             return {"CANCELLED"}
 
-        for package in pip_packages:
-            if install_package(package):
-                try:
-                    self.report({"INFO"}, "Testing Package {} import..".format(package.module))
-                    check_module(package)
-                    self.report({"INFO"}, "Package successfully installed")
-                except ModuleNotFoundError:
-                    self.report({"WARNING"}, "Package should be available but cannot be found, check console for detailed info. Try restarting blender, otherwise get in contact.")
-                show_package_info(package)
+        package = {e.name: e for e in pip_packages}[str(self.package_path)]
+
+        if install_package(package):
+            self.report({"INFO"}, "Testing Package {} import..".format(package.module))
+            if check_module(package):
+                self.report({"INFO"}, "Package successfully installed")
             else:
-                self.report({"WARNING"}, "Cannot install package: {}".format(self.package_path))
+                self.report({"WARNING"}, "Package should be available but cannot be found, check console for detailed info. Try restarting blender, otherwise get in contact.")
+            show_package_info(package)
+        else:
+            self.report({"WARNING"}, "Cannot install package: {}".format(self.package_path))
         
         global just_imported
         just_imported = True
@@ -290,7 +318,8 @@ classes =     (
     Pip_Refresh_package,
     Pip_Uninstall_package,
     Pip_Install_packages,
-    PiPPreferences
+    PiPPreferences,
+    SpoutAddonProperties
 )
 
 def register():
@@ -303,8 +332,12 @@ def register():
     from bpy.utils import register_class
     for cls in classes:
         register_class(cls)
+    
+    bpy.types.Scene.spout_addon_props = bpy.props.PointerProperty(type=SpoutAddonProperties)
+
 
 def unregister():
+    del bpy.types.Scene.spout_addon_props
     from bpy.utils import unregister_class
     for cls in reversed(classes):
         unregister_class(cls)
