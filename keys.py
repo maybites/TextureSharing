@@ -14,6 +14,14 @@ def get_server_name(self):
     data = bpy.context.scene.TEXS_servers
     return data
 
+class TEXS_PG_image_texshare_streaming_type(bpy.types.PropertyGroup):
+    # Define a StringProperty for the filepath
+    streaming_type: bpy.props.EnumProperty(
+        name = "stream type", 
+        default = "SPOUT", 
+        items = streamingTypeItems
+    )
+
 class TEXS_PG_image_texshare_settings(bpy.types.PropertyGroup):
     #key_path = bpy.props.StringProperty(name="Key", default="Unknown")
     enable: bpy.props.BoolProperty(
@@ -57,6 +65,11 @@ class TEXS_PG_image_texshare_settings(bpy.types.PropertyGroup):
         name ="database ID",
         default= "off",
         description = "referenceID for database"
+    )
+    streaming_type: bpy.props.StringProperty(
+        name = "streaming_type", 
+        default = "SPOUT", 
+        description = "streaming type"
     )
 
 
@@ -131,13 +144,15 @@ class TEXS_PG_camera_texshare_settings(bpy.types.PropertyGroup):
 
 key_classes = (
     TEXS_PG_image_texshare_settings,
-    TEXS_PG_camera_texshare_settings
+    TEXS_PG_camera_texshare_settings,
+    TEXS_PG_image_texshare_streaming_type
 )
 
 def register():
     for cls in key_classes:
         bpy.utils.register_class(cls)
 
+    bpy.types.Scene.TEXS_streaming_type = bpy.props.PointerProperty(type=TEXS_PG_image_texshare_streaming_type)
     bpy.types.Scene.TEXS_imgs = bpy.props.CollectionProperty(type=TEXS_PG_image_texshare_settings)
     bpy.types.Camera.TEXS_share = bpy.props.PointerProperty(type=TEXS_PG_camera_texshare_settings)
     
@@ -147,6 +162,7 @@ def unregister():
         bpy.utils.unregister_class(cls) 
     
     del bpy.types.Scene.TEXS_imgs
+    del bpy.types.Scene.TEXS_streaming_type
     del bpy.types.Camera.TEXS_share
     
 

@@ -229,7 +229,7 @@ class TEXS_OT_ItemCreate(bpy.types.Operator):
     bl_idname = "textureshare.createitem"
     bl_label = "Create"
 
-    copy: bpy.props.IntProperty(default=0)
+    type: bpy.props.StringProperty()
 
     @classmethod
     def poll(cls, context):
@@ -243,15 +243,12 @@ class TEXS_OT_ItemCreate(bpy.types.Operator):
         new_item = keys.add()
         # we assume the new key is added at the end of the collection, so we get the index by:
         index = len(bpy.context.scene.TEXS_imgs.keys()) -1 
-        if self.copy == -1:
-            new_item.name = "TextureReceiver"
-        else:
-            new_item.name = keys[self.copy].name
-            new_item.texs_server = keys[self.copy].texs_server
-            new_item.texs_image = keys[self.copy].texs_image
+        new_item.streaming_type = self.type
+        if self.type == 'SPOUT':
+            new_item.name = "SpoutReceiver"
+        if self.type == 'NDI':
+            new_item.name = "NDIReceiver"
 
-        # and now we move the new key to the index just below the original
-        bpy.context.scene.TEXS_imgs.move(index, self.copy + 1)
         return {'RUNNING_MODAL'}
 
 

@@ -85,7 +85,8 @@ class TEXS_PT_Receiving(bpy.types.Panel):
 
     def draw(self, context):
         layout = self.layout
-
+        texture_type = context.scene.TEXS_streaming_type
+        
         col = layout.column()
         index = 0
         for item in bpy.context.scene.TEXS_imgs:
@@ -132,10 +133,15 @@ class TEXS_PT_Receiving(bpy.types.Panel):
                 image_row = colData.row(align = True)
                 image_row.prop(item, 'texs_image',text='')
 
+                colLabel.label(text='Type')
+                image_row = colData.row(align = True)
+                image_row.prop(item, 'streaming_type', text='')
+                image_row.active = 0
+
             index = index + 1
 
         generate = layout.column()
-        dataSplit = generate.split(factor = 0.8)
+        dataSplit = generate.split(factor = 0.7)
 
         gen_server = dataSplit.column(align = True)
         gen_server.prop(context.scene, "TEXS_servers", text='')
@@ -143,8 +149,11 @@ class TEXS_PT_Receiving(bpy.types.Panel):
         gen_refresh = dataSplit.column(align = True)
         gen_refresh.operator("textureshare.directoryupdate", text='Update')
 
+        gen_type = generate.column(align=True)
+        gen_type.prop(texture_type, 'streaming_type', text='Type')
+
         gen_create = generate.row(align = True)
-        gen_create.operator("textureshare.createitem", icon='PRESET_NEW', text='Create new texture receiver').copy = -1
+        gen_create.operator("textureshare.createitem", icon='PRESET_NEW', text='Create new texture receiver').type = texture_type.streaming_type
 
 
 classes = (
@@ -154,12 +163,14 @@ classes = (
 
 def register():
     bpy.utils.register_class(TEXS_PT_camera_texshare)
-    if platform.startswith("darwin"):
-        bpy.utils.register_class(TEXS_PT_Receiving)
+    bpy.utils.register_class(TEXS_PT_Receiving)
+    #if platform.startswith("darwin"):
+    #    bpy.utils.register_class(TEXS_PT_Receiving)
 
 
 def unregister():
     bpy.utils.unregister_class(TEXS_PT_camera_texshare)
-    if platform.startswith("darwin"):
-        bpy.utils.register_class(TEXS_PT_Receiving)
+    bpy.utils.unregister_class(TEXS_PT_Receiving)
+    #if platform.startswith("darwin"):
+    #    bpy.utils.unregister_class(TEXS_PT_Receiving)
 

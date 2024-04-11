@@ -8,15 +8,28 @@ This works for current Windows (Spout & NDI), Linux (NDI) and OSX (Syphon & NDI)
 
 ## State of Development
 
+### OSX
 - [x] OSX Syphon Metal Server
 - [x] OSX Syphon OpenGL Server
 - [x] OSX Syphon Server Discovery
 - [x] OSX Syphon Metal Client (blender 4.x upwards) 
 - [ ] OSX Syphon OpenGL Client
 
+- [ ] NDI Sender
+- [ ] NDI Sender Discovery
+- [ ] NDI Receiver
+
+### Windows
+
 - [x] Windows Spout Sender
 - [ ] Windows Spout Sender Discovery
 - [ ] Windows Spout Receiver
+
+- [ ] NDI Sender
+- [ ] NDI Sender Discovery
+- [ ] NDI Receiver
+
+### Linux
 
 - [x] NDI Sender
 - [ ] NDI Sender Discovery
@@ -27,6 +40,10 @@ This works for current Windows (Spout & NDI), Linux (NDI) and OSX (Syphon & NDI)
 ### Requirements
 
 If you want to use NDI, donwload and install [NDI SDK](https://ndi.video/download-ndi-sdk/) before you continue intalling the addon.
+
+You also need to download manually the wheel files for your system. Currently there is only a Linux variant [available](https://github.com/buresu/ndi-python/files/11497321/ndi_python-5.1.1.5-cp311-cp311-linux_x86_64.tar.gz) - this is untested, though.
+
+** IN FACT, CURRENTLY NDI IS NOT WORKING AND UNDER HEAVY DEVELOPMENT **
 
 ### Steps
 
