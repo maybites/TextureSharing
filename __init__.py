@@ -84,15 +84,16 @@ def unregister():
         operators.unregister()
         ui.unregister()
         keys.unregister()
+    # clean up NDI
+        for package in pip_importer.pip_packages:
+            if package.module == "NDIlib":
+                if pip_importer.check_module(package):
+                    import NDIlib as ndi
+                    ndi.destroy()
+
     except Exception:
         pass
 
-    # clean up NDI
-    for package in pip_importer.pip_packages:
-        if package.module == "NDIlib":
-            if pip_importer.check_module(package):
-                import NDIlib as ndi
-                ndi.destroy()
 
     pip_importer.unregister()
 

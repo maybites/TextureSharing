@@ -1,7 +1,7 @@
 import bpy
 from . import operators
 
-streamingTypeItems = {}
+streamingTypeItems = set()
 
 def add_streaming_type(item):
     """
