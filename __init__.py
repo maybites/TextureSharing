@@ -42,7 +42,7 @@ def register():
     if platform.system() == "Darwin":  
         pip_importer.add_package(pip_importer.Package("syphon-python", version="==0.1.0", custom_module="syphon"))
 
-    pip_importer.add_package(pip_importer.Package("ndi-python", version="==5.1.1.1", custom_module="NDIlib"))
+    pip_importer.add_package(pip_importer.Package("ndi-python", version="==5.1.1.1", custom_module="NDIlib", install_manualy=True))
 
     # pip_importer.auto_install_packages()
 
