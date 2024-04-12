@@ -39,16 +39,19 @@ class NDIReceiver(FrameBufferSharingClient):
 			return True
 		
 	def apply_frame_to_image(self, target_image: bpy.types.Image):
-		new_texture = np.copy(self.video_frame.data)
+		#new_texture = np.copy(self.video_frame.data)
+		#flat_texture = new_texture.flatten()
+		#norm_texture = (flat_texture / 255.0).astype(float)
+
+		norm_texture = (self.video_frame.data.flatten() / 255.0).astype(float)
+
 		width = self.video_frame.xres
 		height = self.video_frame.yres
 	
 		if (target_image.generated_height != height or target_image.generated_width != width):
 			target_image.scale(width, height)
 
-		flat_texture = new_texture.flatten()
-		
-		target_image.pixels = flat_texture
+		target_image.pixels = norm_texture
 		ndi.recv_free_video_v2(self.ndi_receive, self.video_frame)
 
 	def can_memory_buffer(self):
