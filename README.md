@@ -25,7 +25,7 @@ This works for current Windows (Spout & NDI), Linux (NDI) and OSX (Syphon & NDI)
 - [ ] Windows Spout Sender Discovery
 - [ ] Windows Spout Receiver
 
-- [ ] NDI Sender
+- [x] NDI Sender
 - [ ] NDI Sender Discovery
 - [ ] NDI Receiver
 
@@ -41,7 +41,9 @@ This works for current Windows (Spout & NDI), Linux (NDI) and OSX (Syphon & NDI)
 
 If you want to use NDI, donwload and install [NDI SDK](https://ndi.video/download-ndi-sdk/) before you continue intalling the addon.
 
-You also need to download manually the wheel files for your system. Currently there is only a Linux variant [available](https://github.com/buresu/ndi-python/files/11497321/ndi_python-5.1.1.5-cp311-cp311-linux_x86_64.tar.gz) - this is untested, though.
+You also need to download manually the wheel files for your system. 
+
+The wheels for Windows and OSX can be found [here](https://github.com/maybites/blender-texture-sharing/releases/tag/V6.0.0). A Linux variant is available from [here](https://github.com/buresu/ndi-python/issues/31#issuecomment-1551186707) - this is untested, though. All other Linux users have to [build a wheel themself](https://github.com/buresu/ndi-python#build).
 
 ** IN FACT, CURRENTLY NDI IS NOT WORKING AND UNDER HEAVY DEVELOPMENT **
 
@@ -55,11 +57,13 @@ Please make sure you have the most current Blender installed.
 
 3. If available, press the button to install the SpoutGL or syphon-python library via pip.
 
-4. Press the button to install the NDI library via pip.
+4. For NDI locate the downloaded wheel file for your system architecture.
 
-5. Once the library is installed, disable and reenable the addon.
+5. Press the button to install the NDI library .
 
-6. Save and close preferences.
+6. Once the library is installed, disable and reenable the addon.
+
+7. Save and close preferences.
 
 ## Usage
 

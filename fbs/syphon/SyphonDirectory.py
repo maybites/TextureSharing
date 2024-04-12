@@ -35,7 +35,5 @@ class SyphonDirectory(FrameBufferDirectory):
 	def has_servers(self):
 		return not not self.servers
 
-	def get_server(self, server_name):
-		for items in self.directory:
-			if items[0] == server_name:
-				return self.servers[items[4]]
+	def get_servesr(self):
+		return self.servers

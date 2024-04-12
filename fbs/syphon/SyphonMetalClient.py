@@ -18,8 +18,10 @@ class SyphonMetalClient(FrameBufferSharingClient):
 		self.ctx: Optional[syphon.SyphonMetalClient] = None
 		self.texture: Optional[Any] = None
 
-	def setup(self, server):
-		self.ctx = syphon.SyphonMetalClient(server)
+	def setup(self, servers):
+		for i, server in servers:
+			if server.name == self.name:
+				self.ctx = syphon.SyphonMetalClient(server)
 
 	def has_new_frame(self):
 		return self.ctx.has_new_frame

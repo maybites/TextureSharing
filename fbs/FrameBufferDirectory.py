@@ -27,7 +27,7 @@ class FrameBufferDirectory(ABC):
 		pass
 
 	@abstractmethod
-	def get_server(self, server_name):
+	def get_servers(self, servers):
 		pass
 
 	def register(self):
@@ -41,12 +41,17 @@ class FrameBufferDirectory(ABC):
 		del bpy.types.Scene.TEXS_servers
 
 	@staticmethod
-	def create(name: str):
-		if platform.startswith("darwin"):
-			from .syphon.SyphonDirectory import SyphonDirectory
-			return SyphonDirectory(name)
-		elif platform.startswith("win"):
-			from .spout.SpoutDirectory import SpoutDirectory
-			return SpoutDirectory(name)
+	def create(name: str, type: str):
+		if str == "SPOUT":
+			if platform.startswith("darwin"):
+				from .syphon.SyphonDirectory import SyphonDirectory
+				return SyphonDirectory(name)
+			elif platform.startswith("win"):
+				from .spout.SpoutDirectory import SpoutDirectory
+				return SpoutDirectory(name)
+			else:
+				raise Exception(f"Platform {platform} is not supported!")
 		else:
-			raise Exception(f"Platform {platform} is not supported!")
+			from .ndi.NDIDirectory import NDIDirectory
+			return NDIDirectory(name)
+

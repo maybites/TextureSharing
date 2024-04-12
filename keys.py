@@ -1,3 +1,4 @@
+from typing import Any
 import bpy
 from . import operators
 
@@ -16,7 +17,7 @@ def get_server_name(self):
 
 class TEXS_PG_image_texshare_streaming_type(bpy.types.PropertyGroup):
     # Define a StringProperty for the filepath
-    streaming_type: bpy.props.EnumProperty(
+    streaming_type : bpy.props.EnumProperty(
         name = "stream type", 
         default = "SPOUT", 
         items = streamingTypeItems
@@ -24,7 +25,7 @@ class TEXS_PG_image_texshare_streaming_type(bpy.types.PropertyGroup):
 
 class TEXS_PG_image_texshare_settings(bpy.types.PropertyGroup):
     #key_path = bpy.props.StringProperty(name="Key", default="Unknown")
-    enable: bpy.props.BoolProperty(
+    enable : bpy.props.BoolProperty(
         name="Enable", 
         description = "Enables texture sharing", 
         default=False,
@@ -45,19 +46,19 @@ class TEXS_PG_image_texshare_settings(bpy.types.PropertyGroup):
         default = 0,
         description = "Inidicates if the texture is flipped when sharing is active"
     )   
-    name: bpy.props.StringProperty(
+    name : bpy.props.StringProperty(
         name="Name", 
         default="TextureReceiver"
     )
-    texs_server: bpy.props.StringProperty(
+    texs_server : bpy.props.StringProperty(
         name = "Server", 
         get=get_server_name
     )
-    texs_image: bpy.props.PointerProperty(
+    texs_image : bpy.props.PointerProperty(
         name="Image", 
         type=bpy.types.Image
     )
-    ui_expanded: bpy.props.BoolProperty(
+    ui_expanded : bpy.props.BoolProperty(
         name="Expanded", 
         default=True
     )
@@ -66,7 +67,7 @@ class TEXS_PG_image_texshare_settings(bpy.types.PropertyGroup):
         default= "off",
         description = "referenceID for database"
     )
-    streaming_type: bpy.props.StringProperty(
+    streaming_type : bpy.props.StringProperty(
         name = "streaming_type", 
         default = "SPOUT", 
         description = "streaming type"
@@ -74,7 +75,7 @@ class TEXS_PG_image_texshare_settings(bpy.types.PropertyGroup):
 
 
 class TEXS_PG_camera_texshare_settings(bpy.types.PropertyGroup):
-    streamingType: bpy.props.EnumProperty(
+    streamingType : bpy.props.EnumProperty(
         name = "streaming type", 
         default = "SPOUT", 
         items = streamingTypeItems
@@ -156,7 +157,6 @@ def register():
     bpy.types.Scene.TEXS_imgs = bpy.props.CollectionProperty(type=TEXS_PG_image_texshare_settings)
     bpy.types.Camera.TEXS_share = bpy.props.PointerProperty(type=TEXS_PG_camera_texshare_settings)
     
-
 def unregister():
     for cls in reversed(key_classes):
         bpy.utils.unregister_class(cls) 

@@ -6,13 +6,7 @@ import numpy as np
 
 import NDIlib as ndi
 
-import bgl 
-
-import gpu
-from gpu_extras.presets import draw_texture_2d
-
 from ..FrameBufferSharingServer import FrameBufferSharingServer
-
 
 class NDIServer(FrameBufferSharingServer):
     def __init__(self, name: str = "NDIServer"):

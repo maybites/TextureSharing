@@ -9,7 +9,7 @@ class FrameBufferSharingClient(ABC):
 		self.name = name
 
 	@abstractmethod
-	def setup(self, server):
+	def setup(self, servers):
 		pass
 
 	@abstractmethod
@@ -37,13 +37,17 @@ class FrameBufferSharingClient(ABC):
 		pass
 
 	@staticmethod
-	def create(name: str):
-		if platform.startswith("darwin"):
-			if gpu.platform.backend_type_get() == 'METAL':
-				from .syphon.SyphonMetalClient import SyphonMetalClient
-				return SyphonMetalClient(name)
-			if gpu.platform.backend_type_get() == 'OPENGL':
-				from .syphon.SyphonOpenGLClient import SyphonOpenGLClient
-				return SyphonOpenGLClient(name)
+	def create(name: str, type: str):
+		if str == "SPOUT":
+			if platform.startswith("darwin"):
+				if gpu.platform.backend_type_get() == 'METAL':
+					from .syphon.SyphonMetalClient import SyphonMetalClient
+					return SyphonMetalClient(name)
+				if gpu.platform.backend_type_get() == 'OPENGL':
+					from .syphon.SyphonOpenGLClient import SyphonOpenGLClient
+					return SyphonOpenGLClient(name)
+			else:
+				raise Exception(f"Platform {platform} is not supported!")
 		else:
-			raise Exception(f"Platform {platform} is not supported!")
+			from .ndi.NDIReceiver import NDIReceiver
+			return NDIReceiver(name)

@@ -1,3 +1,4 @@
+from typing import Any
 import bpy
 import gpu
 import time
@@ -15,8 +16,18 @@ except ModuleNotFoundError as ex:
 
 import uuid
 
-fb_directory = FrameBufferDirectory.create("FrameBufferDirectory")
-fb_directory.setup()
+fb_directories = dict()
+
+def add_streaming_type_ndi(dirs):
+    dir =  FrameBufferDirectory.create("NDI_FrameBufferDirectory", "NDI")
+    dir.setup()
+    dirs["NDI"] = dir
+
+def add_streaming_type_spout(dirs):
+    dir =  FrameBufferDirectory.create("Spout_FrameBufferDirectory", "SPOUT")
+    dir.setup()
+    dirs["SPOUT"] = dir
+
 
 #dictionary to store the references to
 db_frameHandle = {} # the draw handler 
@@ -193,10 +204,12 @@ def texshare_receive(self, context):
         updateDraw = False
 
         server = guivars.texs_server
+
+        stream_type = guivars.streaming_type
         
         # create a new spout sender instance
-        fb_client = FrameBufferSharingClient.create(server)
-        fb_client.setup(fb_directory.get_server(server))
+        fb_client = FrameBufferSharingClient.create(server, stream_type)
+        fb_client.setup(fb_directories.get(stream_type).get_servers())
 
         # create a off screen renderer
         # offscreen = gpu.types.GPUOffScreen(dWIDTH, dHEIGHT)
@@ -229,7 +242,7 @@ class TEXS_OT_ItemCreate(bpy.types.Operator):
     bl_idname = "textureshare.createitem"
     bl_label = "Create"
 
-    type: bpy.props.StringProperty()
+    type : bpy.props.StringProperty()
 
     @classmethod
     def poll(cls, context):
@@ -261,7 +274,7 @@ class TEXS_OT_ItemDelete(bpy.types.Operator):
     bl_idname = "textureshare.deleteitem"
     bl_label = "Delete"
 
-    index: bpy.props.IntProperty(default=0)
+    index : bpy.props.IntProperty(default=0)
 
     @classmethod
     def poll(cls, context):
@@ -283,7 +296,7 @@ class TEXS_OT_DirUpdate(bpy.types.Operator):
     bl_idname = "textureshare.directoryupdate"
     bl_label = "Update"
 
-    global fb_directory
+    global fb_directories
 
     @classmethod
     def poll(cls, context):
@@ -293,7 +306,8 @@ class TEXS_OT_DirUpdate(bpy.types.Operator):
         return {'FINISHED'}
 
     def invoke(self, context, event):
-        fb_directory.update()
+        for key, value in fb_directories.items():
+            value.update()
         return {'RUNNING_MODAL'}
 
 op_classes = (
@@ -306,10 +320,12 @@ def register():
     for cls in op_classes:
         bpy.utils.register_class(cls)
 
-    fb_directory.register()
+    for key, value in fb_directories.items():
+        value.register()
 
 def unregister():
     for cls in reversed(op_classes):
         bpy.utils.unregister_class(cls)
 
-    fb_directory.unregister()
+    for key, value in fb_directories.items():
+        value.unregister()

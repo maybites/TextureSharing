@@ -150,7 +150,7 @@ class TEXS_PT_Receiving(bpy.types.Panel):
         gen_refresh.operator("textureshare.directoryupdate", text='Update')
 
         gen_type = generate.column(align=True)
-        gen_type.prop(texture_type, 'streaming_type', text='Type')
+        select_type = gen_type.prop(texture_type, 'streaming_type', text='Type')
 
         gen_create = generate.row(align = True)
         gen_create.operator("textureshare.createitem", icon='PRESET_NEW', text='Create new texture receiver').type = texture_type.streaming_type

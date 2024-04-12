@@ -20,18 +20,22 @@ class NDIDirectory(FrameBufferDirectory):
 
 	def update(self):
 		self._reset()
+		ndi.find_wait_for_sources(self.ndi_find, 5000)
 		self.sources = ndi.find_get_current_sources(self.ndi_find)
 
 		for i, s in enumerate(self.sources):
 			self.directory.add((s.ndi_name, s.ndi_name, s.ndi_name, "WORLD_DATA", i))
 
-            #print('%s. %s' % (i + 1, s.ndi_name))
 		self.register()
 
 	def has_servers(self):
 		return not not self.sources
 
-	def get_server(self, server_name):
-		for items in self.directory:
-			if items[0] == server_name:
-				return self.sources[items[4]]
+	def get_servers(self):
+		return self.sources
+	
+	def unregister(self):
+		ndi.find_destroy(self.ndi_find)
+		super().unregister(self)
+
+

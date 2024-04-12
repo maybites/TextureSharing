@@ -54,9 +54,11 @@ def register():
                     if not ndi.initialize():
                         return 0        
                     keys.add_streaming_type_ndi(keys.streamingTypeItems)
+                    operators.add_streaming_type_ndi(operators.fb_directories)
             else:
                 if pip_importer.check_module(package):
                     keys.add_streaming_type_spout(keys.streamingTypeItems)
+                    operators.add_streaming_type_spout(operators.fb_directories)
 
         keys.register()
         operators.register()
