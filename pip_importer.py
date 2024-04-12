@@ -126,14 +126,14 @@ def update_pip():
     cmd = [PYPATH, "-m", "pip", "install", "--upgrade", "pip"]
     return not subprocess.call(cmd)
 
-def install_package(package):
+def install_package(package, file_path):
     update_pip()
     if package.install_manualy:
-        pass
+        cmd = [PYPATH, "-m", "pip", "install", "--upgrade", file_path]
+        ok = subprocess.call(cmd) == 0
     else:
-        pass
-    cmd = [PYPATH, "-m", "pip", "install", "--upgrade", f"{package.name}{package.version}"]
-    ok = subprocess.call(cmd) == 0
+        cmd = [PYPATH, "-m", "pip", "install", "--upgrade", f"{package.name}{package.version}"]
+        ok = subprocess.call(cmd) == 0
     return ok
 
 def uninstall_package(package):
@@ -234,13 +234,16 @@ class Pip_Refresh_package(Operator):
     package_path: bpy.props.StringProperty(subtype="FILE_PATH")
 
     def execute(self, context):
+        scene = context.scene
+        spout_addon_props = scene.spout_addon_props
+
         package = {e.name: e for e in pip_packages}[str(self.package_path)]
 
         if not self.package_path:
             self.report({"WARNING"}, "Specify package to be installed")
             return {"CANCELLED"}
 
-        if install_package(package):
+        if install_package(package, spout_addon_props.my_file_path):
             self.report({"INFO"}, "Testing Package {} import..".format(package.module))
             if check_module(package):
                 self.report({"INFO"}, "Package successfully installed")
@@ -286,6 +289,9 @@ class Pip_Install_packages(Operator):
     package_path: bpy.props.StringProperty(subtype="FILE_PATH")
 
     def execute(self, context):
+        scene = context.scene
+        spout_addon_props = scene.spout_addon_props
+    
         if not ensure_pip():
             self.report(
                 {"WARNING"},
@@ -295,7 +301,7 @@ class Pip_Install_packages(Operator):
 
         package = {e.name: e for e in pip_packages}[str(self.package_path)]
 
-        if install_package(package):
+        if install_package(package, spout_addon_props.my_file_path):
             self.report({"INFO"}, "Testing Package {} import..".format(package.module))
             if check_module(package):
                 self.report({"INFO"}, "Package successfully installed")
