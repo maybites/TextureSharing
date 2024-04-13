@@ -1,4 +1,4 @@
-# Texture sharing addon V6.0.1 for Blender 3.x upwards
+# Texture sharing addon V6.0.3 for Blender 3.x upwards
 
 Blender addon that allows to share textures via [Spout](http://spout.zeal.co/) or [Syphon](https://syphon.github.io/) or [NDI](https://ndi.video) from and to blender.
 
@@ -36,8 +36,6 @@ If you want to use NDI, donwload and install [NDI SDK](https://ndi.video/downloa
 You also need to download manually the wheel files for your system. 
 
 The wheels for Windows and OSX can be found [here](https://github.com/maybites/blender-texture-sharing/releases/tag/V6.0.0). A Linux variant is available from [here](https://github.com/buresu/ndi-python/issues/31#issuecomment-1551186707) - this is untested, though. All other Linux users have to [build a wheel themself](https://github.com/buresu/ndi-python#build).
-
-** IN FACT, CURRENTLY NDI IS NOT WORKING AND UNDER HEAVY DEVELOPMENT **
 
 ### Steps
 
