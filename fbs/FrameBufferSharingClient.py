@@ -38,7 +38,7 @@ class FrameBufferSharingClient(ABC):
 
 	@staticmethod
 	def create(name: str, type: str):
-		if str == "SPOUT":
+		if type == "SPOUT":
 			if platform.startswith("darwin"):
 				if gpu.platform.backend_type_get() == 'METAL':
 					from .syphon.SyphonMetalClient import SyphonMetalClient

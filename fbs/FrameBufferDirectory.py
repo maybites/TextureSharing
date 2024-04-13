@@ -42,7 +42,7 @@ class FrameBufferDirectory(ABC):
 
 	@staticmethod
 	def create(name: str, type: str):
-		if str == "SPOUT":
+		if type == "SPOUT":
 			if platform.startswith("darwin"):
 				from .syphon.SyphonDirectory import SyphonDirectory
 				return SyphonDirectory(name)
