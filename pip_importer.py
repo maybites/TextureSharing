@@ -225,7 +225,7 @@ class PiPPreferences(AddonPreferences):
                     ).package_path=package.name
 
 # Refresh operator
-class Pip_Refresh_package(Operator):
+class Pip_Update_package(Operator):
     """refresh module from local .whl file or from PyPi"""
 
     bl_idname = "view3d.pip_refresh_package"
@@ -327,7 +327,7 @@ class SpoutAddonProperties(bpy.types.PropertyGroup):
  
 
 classes =     (
-    Pip_Refresh_package,
+    Pip_Update_package,
     Pip_Uninstall_package,
     Pip_Install_packages,
     PiPPreferences,

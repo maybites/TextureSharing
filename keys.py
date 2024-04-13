@@ -19,7 +19,6 @@ class TEXS_PG_image_texshare_streaming_type(bpy.types.PropertyGroup):
     # Define a StringProperty for the filepath
     streaming_type : bpy.props.EnumProperty(
         name = "stream type", 
-        default = "SPOUT", 
         items = streamingTypeItems
     )
 
@@ -75,9 +74,8 @@ class TEXS_PG_image_texshare_settings(bpy.types.PropertyGroup):
 
 
 class TEXS_PG_camera_texshare_settings(bpy.types.PropertyGroup):
-    streamingType : bpy.props.EnumProperty(
-        name = "streaming type", 
-        default = "SPOUT", 
+    streaming_type : bpy.props.EnumProperty(
+        name = "streaming_type", 
         items = streamingTypeItems
     )
     enable : bpy.props.BoolProperty(

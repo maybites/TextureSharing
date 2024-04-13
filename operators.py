@@ -125,7 +125,7 @@ def texshare_send(self, context):
         dHEIGHT = guivars.capture_height
         
         # create a new spout sender instance
-        fbSender = FrameBufferSharingServer.create(context.camera.name, guivars.streamingType)
+        fbSender = FrameBufferSharingServer.create(context.camera.name, guivars.streaming_type)
         fbSender.setup()
 
         #if spyphonSender.can_memory_buffer() == True:
