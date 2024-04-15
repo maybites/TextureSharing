@@ -1,4 +1,4 @@
-# Texture sharing addon V6.0.3 for Blender 3.x upwards
+# Texture sharing addon V6.0.4 for Blender 3.x upwards
 
 Blender addon that allows to share textures via [Spout](http://spout.zeal.co/) or [Syphon](https://syphon.github.io/) or [NDI](https://ndi.video) from and to blender.
 
@@ -96,6 +96,10 @@ The receiver will automatically adjust the image size to the size of the receive
 Caveat: With the current implementation the update speed is very low (a few frames a second). 
 Thats because the received texture needs to be copied from the GPU into an image buffer on the CPU.
 For the time beeing I dont see another way to solve this.
+
+## Issues
+
+When uninstalling a package, blender needs to be restarted to reflect the missing package in the userinterface.
 
 ## Credits
 
