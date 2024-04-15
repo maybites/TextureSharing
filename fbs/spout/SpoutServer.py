@@ -23,7 +23,7 @@ class SpoutServer(FrameBufferSharingServer):
         self.ctx.setSenderName(self.name)
 
     def draw_texture(self, offscreen: gpu.types.GPUOffScreen, rect_pos: tuple[int, int], width: int, height: int):
-        draw_texture_2d(offscreen.color_texture, rect_pos, width, height)
+        draw_texture_2d(offscreen.texture_color, rect_pos, width, height)
 
     def send_texture(self, offscreen:  gpu.types.GPUOffScreen, width: int, height: int, is_flipped: bool = False):
         texture = offscreen.color_texture

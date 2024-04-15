@@ -7,6 +7,7 @@ import numpy as np
 import NDIlib as ndi
 
 import gpu
+from gpu_extras.presets import draw_texture_2d
 
 from ..FrameBufferSharingServer import FrameBufferSharingServer
 
@@ -29,11 +30,11 @@ class NDIServer(FrameBufferSharingServer):
         self.ndi_send = ndi.send_create(self.send_settings)
 
         self.video_frame = ndi.VideoFrameV2()
-        self.video_frame.FourCC = ndi.FOURCC_VIDEO_TYPE_BGRX
+        self.video_frame.FourCC = ndi.FOURCC_VIDEO_TYPE_RGBX
         self.video_frame.frame_format_type  = ndi.FRAME_FORMAT_TYPE_PROGRESSIVE
 
     def draw_texture(self, offscreen: gpu.types.GPUOffScreen, rect_pos: tuple[int, int], width: int, height: int):
-        draw_texture_2d(offscreen.color_texture, rect_pos, width, height)
+        draw_texture_2d(offscreen.texture_color, rect_pos, width, height)
 
     def send_texture(self, offscreen:  gpu.types.GPUOffScreen, width: int, height: int, is_flipped: bool = False):
         # offscreen is type https://docs.blender.org/api/current/gpu.types.html#gpu.types.GPUOffScreen
@@ -44,7 +45,7 @@ class NDIServer(FrameBufferSharingServer):
             self.width = texture.width
             self.video_frame.xres = self.width
             self.video_frame.yres = self.height
-
+        
         self.video_frame.data = texture.read()        
         self.video_frame.line_stride_in_bytes  = self.width * 4
         
