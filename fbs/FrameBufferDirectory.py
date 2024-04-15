@@ -38,7 +38,10 @@ class FrameBufferDirectory(ABC):
 		)
 
 	def unregister(self):
-		del bpy.types.Scene.TEXS_servers
+		try:
+			del bpy.types.Scene.TEXS_servers
+		except Exception:
+			pass
 
 	@staticmethod
 	def create(name: str, type: str):

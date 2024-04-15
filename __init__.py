@@ -37,7 +37,7 @@ def register():
 
     # then add the required packages
     if platform.system() == "Windows":
-        pip_importer.add_package(pip_importer.Package("SpoutGL", version="==0.0.4", custom_module="SpoutGL"))
+        pip_importer.add_package(pip_importer.Package("SpoutGL", version="==0.0.6", custom_module="SpoutGL"))
 
     if platform.system() == "Darwin":  
         pip_importer.add_package(pip_importer.Package("syphon-python", version="==0.1.0", custom_module="syphon"))
@@ -82,7 +82,8 @@ def unregister():
                     import NDIlib as ndi
                     ndi.destroy()
 
-    except Exception:
+    except Exception as e:
+        print("Caught error during cleanup process: {}", e)
         pass
 
 

@@ -37,5 +37,5 @@ class SpoutDirectory(FrameBufferDirectory):
 	def has_servers(self):
 		return False
 
-	def get_server(self, server_name):
+	def get_servers(self, server_name):
 		return None

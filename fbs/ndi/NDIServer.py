@@ -6,6 +6,8 @@ import numpy as np
 
 import NDIlib as ndi
 
+import gpu
+
 from ..FrameBufferSharingServer import FrameBufferSharingServer
 
 class NDIServer(FrameBufferSharingServer):

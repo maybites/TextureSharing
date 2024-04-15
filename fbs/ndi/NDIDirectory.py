@@ -36,6 +36,6 @@ class NDIDirectory(FrameBufferDirectory):
 	
 	def unregister(self):
 		ndi.find_destroy(self.ndi_find)
-		super().unregister(self)
+		super().unregister()
 
 
