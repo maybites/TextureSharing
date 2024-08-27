@@ -3,39 +3,38 @@ from typing import Optional, Any, List
 
 import SpoutGL
 
-import logging
-
 from ..FrameBufferDirectory import FrameBufferDirectory
 
+
 class SpoutDirectory(FrameBufferDirectory):
-	def __init__(self, name: str = "SpoutDirectory"):
-		super().__init__(name)
+    def __init__(self, name: str = "SpoutDirectory"):
+        super().__init__(name)
+        self.sources: Optional[List[str]] = []  # sources or servers
 
-		self.senderCnt: Optional[int] = 0
-		self.servers:  Optional[List[str]] = []
+    def setup(self):
+        self.receiver = SpoutGL.SpoutReceiver()
+        self.update()
 
-	def setup(self):
-		#self.senderCnt = Spout.GetSenderCount()
+    def update(self):
+        self._reset()
+        # Add getSenderList(), getSenderInfo(), getActiveSender(), setActiveSender()
+        # available from 0.1.0 of SpoutGL
 
-		self.update()
+        sender_names = self.receiver.getSenderList()
+        sender_list = [self.receiver.getSenderInfo(n) for n in sender_names]
+        # to access sender_info.width, sender_info.height
 
-	def update(self):
-		self._reset()
-		#self.ctx.GetSenderNames(self.servers)
-		index = 0
-		for server in self.servers:
-			server_title = server
-			print(server)
-			#if server.name != '':
-			#	server_title = server_title + " | " + server.name
+        print(sender_names, sender_list)
+        self.sources = sender_names
+        print("spout sources", self.sources)
 
-			#self.directory.add((server_title, server_title, server_title, "WORLD_DATA", index))
-			#index += 1
+        for i, s in enumerate(self.sources):
+            self.directory.add((s, s, s, "WORLD_DATA", i))
 
-		self.register()
+        self.register()
 
-	def has_servers(self):
-		return False
+    def has_servers(self):
+        return not not self.sources
 
-	def get_servers(self, server_name):
-		return None
+    def get_servers(self):
+        return self.sources

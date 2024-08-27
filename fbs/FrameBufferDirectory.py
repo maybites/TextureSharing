@@ -57,4 +57,7 @@ class FrameBufferDirectory(ABC):
 		else:
 			from .ndi.NDIDirectory import NDIDirectory
 			return NDIDirectory(name)
+			# have to replace above piece with the one below to avoid NDI source list overwriting Spout list on win
+			# from .spout.SpoutDirectory import SpoutDirectory
+			# return SpoutDirectory(name)
 
