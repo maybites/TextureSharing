@@ -19,8 +19,11 @@ class SyphonOpenGLClient(FrameBufferSharingClient):
 		self.texture: Optional[Any] = None
 
 	def setup(self, servers):
-		for i, server in servers:
-			if server.name == self.name:
+		for server in servers:
+			server_title = server.app_name
+			if server.name != '':
+				server_title = server.app_name + " | " + server.name
+			if server_title == self.name:
 				self.ctx = syphon.SyphonOpenGLClient(server)
 
 	def has_new_frame(self):

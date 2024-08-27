@@ -297,6 +297,7 @@ class TEXS_OT_DirUpdate(bpy.types.Operator):
     bl_label = "Update"
 
     global fb_directories
+    type : bpy.props.StringProperty() 
 
     @classmethod
     def poll(cls, context):
@@ -307,7 +308,8 @@ class TEXS_OT_DirUpdate(bpy.types.Operator):
 
     def invoke(self, context, event):
         for key, value in fb_directories.items():
-            value.update()
+            if self.type == key:
+                value.update()
         return {'RUNNING_MODAL'}
 
 op_classes = (

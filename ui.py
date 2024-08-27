@@ -141,19 +141,23 @@ class TEXS_PT_Receiving(bpy.types.Panel):
             index = index + 1
 
         generate = layout.column()
+
+        gen_type = generate.row(align=True)
+        gen_type.prop(texture_type, 'streaming_type', text='Type')
+
         dataSplit = generate.split(factor = 0.7)
 
         gen_server = dataSplit.column(align = True)
         gen_server.prop(context.scene, "TEXS_servers", text='')
 
         gen_refresh = dataSplit.column(align = True)
-        gen_refresh.operator("textureshare.directoryupdate", text='Update')
+        gen_refresh.operator("textureshare.directoryupdate", text='Update').type = texture_type.streaming_type
 
-        gen_type = generate.column(align=True)
-        select_type = gen_type.prop(texture_type, 'streaming_type', text='Type')
+        selected_server = context.scene.TEXS_servers
 
-        gen_create = generate.row(align = True)
-        gen_create.operator("textureshare.createitem", icon='PRESET_NEW', text='Create new texture receiver').type = texture_type.streaming_type
+        if selected_server != "OFF":
+            gen_create = generate.row(align = True)
+            gen_create.operator("textureshare.createitem", icon='PRESET_NEW', text='Create new texture receiver').type = texture_type.streaming_type
 
 
 classes = (

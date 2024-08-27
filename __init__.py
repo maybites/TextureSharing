@@ -13,15 +13,15 @@
 
 bl_info = {
     "name" : "TextureSharing",
-    "author" : "Martin Froehlich, Florian Bruggisser",
+    "author" : "Martin Froehlich, Florian Bruggisser, Jonathan Chemla",
     "description" : "Sharing Textures via NDI, Spout or Syphon from Blender",
     "blender" : (3, 0, 0),
-    "version" : (6, 0, 5),
-    "doc_url" : "https://github.com/maybites/blender-texture-sharing",
+    "version" : (6, 1, 0),
+    "doc_url" : "https://github.com/maybites/TextureSharing",
     "location" : "Properties > Camera > Camera data",
     "category" : "Render", 
-    "wiki_url" : "https://github.com/maybites/blender-texture-sharing",
-    "tracker_url" : "https://github.com/maybites/blender-texture-sharing/issues",
+    "wiki_url" : "https://github.com/maybites/TextureSharing",
+    "tracker_url" : "https://github.com/maybites/TextureSharing/issues",
     "support" : "COMMUNITY"
 }
 

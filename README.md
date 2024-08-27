@@ -1,4 +1,4 @@
-# Texture sharing addon V6.0.5 for Blender 3.x upwards
+# Texture sharing addon V6.1.0 for Blender 3.x upwards
 
 Blender addon that allows to share textures via [Spout](http://spout.zeal.co/) or [Syphon](https://syphon.github.io/) or [NDI](https://ndi.video) from and to blender.
 
@@ -18,8 +18,10 @@ This works for current Windows (Spout & NDI), Linux (NDI) and OSX (Syphon & NDI)
 ### Windows
 
 - [x] Windows Spout Sender
-- [ ] Windows Spout Sender Discovery
-- [ ] Windows Spout Receiver
+- [x] Windows Spout Sender Discovery (only supported from spout version 0.1.0 onward)
+- [x] Windows Spout Receiver (only supported from spout version 0.1.0 onward)
+
+⚠️ If you have already used this addon before - please reinstall the spout python package to get to version 0.1.0 ⚠️
 
 ### Linux, Windows, OSX
 
@@ -35,13 +37,13 @@ If you want to use NDI, donwload and install [NDI SDK](https://ndi.video/downloa
 
 You also need to download manually the wheel files for your system. 
 
-The wheels for Windows and OSX can be found [here](https://github.com/maybites/blender-texture-sharing/releases/tag/V6.0.0). A Linux variant is available from [here](https://github.com/buresu/ndi-python/issues/31#issuecomment-1551186707) - this is untested, though. All other Linux users have to [build a wheel themself](https://github.com/buresu/ndi-python#build).
+The wheels for Windows and OSX can be found [here](https://github.com/maybites/TextureSharing/releases/tag/V6.0.0). A Linux variant is available from [here](https://github.com/buresu/ndi-python/issues/31#issuecomment-1551186707) - this is untested, though. All other Linux users have to [build a wheel themself](https://github.com/buresu/ndi-python#build).
 
 ### Steps
 
 Please make sure you have the most current Blender installed.
 
-1. [Download](https://github.com/maybites/blender.script.spout/releases) the addon from the **releases**
+1. [Download](https://github.com/maybites/TextureSharing/releases) the addon from the **releases**
 
 2. Open Blender > Menu >  Preferences > Add-ons > search for and enable the 'TextureSharing' add-on  
 
@@ -116,4 +118,5 @@ Blender Plugin by Martin Froehlich.
 
 ### Very Special Thanks
 
-Python support by Florian Bruggisser - without him, the flawless working of spyhon in blender would still be a dream.
+* Python support by Florian Bruggisser - without him, the flawless working of spyhon in blender would still be a dream.
+* Spout Directory/Receiver implemented by Jonathan Chemla 
