@@ -46,6 +46,9 @@ class FrameBufferSharingClient(ABC):
 				if gpu.platform.backend_type_get() == 'OPENGL':
 					from .syphon.SyphonOpenGLClient import SyphonOpenGLClient
 					return SyphonOpenGLClient(name)
+			elif platform.startswith("win"):
+				from .spout.SpoutClient import SpoutClient
+				return SpoutClient(name)
 			else:
 				raise Exception(f"Platform {platform} is not supported!")
 		else:
