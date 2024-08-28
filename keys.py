@@ -71,7 +71,11 @@ class TEXS_PG_image_texshare_settings(bpy.types.PropertyGroup):
         default = "SPOUT", 
         description = "streaming type"
     )
-
+    refresh_rate : bpy.props.IntProperty(
+        name = "frame_refresh_rate",
+        default = 100,
+        description = "Refresh rate for the incomming frames in milliseconds"
+    )
 
 class TEXS_PG_camera_texshare_settings(bpy.types.PropertyGroup):
     streaming_type : bpy.props.EnumProperty(

@@ -108,11 +108,14 @@ class TEXS_PT_Receiving(bpy.types.Panel):
                         emboss = False)
             
                 sub1.label(icon='IMPORT')
+                sub2 = row.row()
+                sub2.label(text=item.texs_server)
+
+            else:
+                sub2 = row.row()
+                sub2.label(text="image required", icon='ERROR')
 
                         
-            sub2 = row.row()
-            sub2.label(text=item.texs_server)
-
             if not item.enable:
                 subsub = sub2.row(align=True)
                 subsub.operator("textureshare.deleteitem", icon='PANEL_CLOSE', text = "").index = index
@@ -132,6 +135,10 @@ class TEXS_PT_Receiving(bpy.types.Panel):
                 colLabel.label(text='Image')
                 image_row = colData.row(align = True)
                 image_row.prop(item, 'texs_image',text='')
+
+                colLabel.label(text='Rate')
+                image_row = colData.row(align = True)
+                image_row.prop(item, 'refresh_rate', text='')
 
                 colLabel.label(text='Type')
                 image_row = colData.row(align = True)

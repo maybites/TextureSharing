@@ -2,6 +2,7 @@ from typing import Any
 import bpy
 import gpu
 import time
+import functools
 from gpu_extras.presets import draw_texture_2d
 
 import json
@@ -17,6 +18,7 @@ except ModuleNotFoundError as ex:
 import uuid
 
 fb_directories = dict()
+needsRedraw = False
 
 def add_streaming_type_ndi(dirs):
     dir =  FrameBufferDirectory.create("NDI_FrameBufferDirectory", "NDI")
@@ -65,11 +67,24 @@ def frame_metadata(name, frame_metadata_buffer):
     return handler
 
 def write_frame(fb_client, guivars):
+    global needsRedraw
+
     def write_frame_handler(scene, depsgraph):
         if fb_client.has_new_frame() == True:
             fb_client.apply_frame_to_image(guivars.texs_image)
+            needsRedraw = True
     
     return write_frame_handler
+
+# function for the method the timer thread is calling when it is appropriate
+def image_dirty_timer_call(fb_client, guivars):
+
+    if fb_client.has_new_frame() == True:
+        fb_client.apply_frame_to_image(guivars.texs_image)
+        guivars.texs_image.update_tag()
+    
+    return guivars.refresh_rate / 1000 if guivars.enable == 1 else None
+
 
 # function for the draw handler to capture the texture from the perspective of the camera
 def texshare_capture(self, context, camera, object, space, region, scene, layer, offscreen, spyphonSender, showPreview, isFlipped, frame_metadata_buffer):
@@ -217,9 +232,13 @@ def texshare_receive(self, context):
         # collect all the arguments to pass to the write handler
         
         write_handler = None
-        write_handler = write_frame(fb_client, guivars)
-        bpy.app.handlers.depsgraph_update_pre.append(write_handler)
+        # following code is not needed anymore and replace by a simple timer down below
+        # write_handler = write_frame(fb_client, guivars)
+        # bpy.app.handlers.depsgraph_update_pre.append(write_handler)
         
+        # register the method to dirty the image
+        bpy.app.timers.register(functools.partial(image_dirty_timer_call, fb_client, guivars))
+
         # store the references inside the db-dicts
         #db_frameHandle[dbID] = frameHandler
         db_writeHandle[dbID] = write_handler
@@ -227,11 +246,14 @@ def texshare_receive(self, context):
 
     # if streaming has been disabled and my ID is still stored in the db
     if guivars.enable == 0 and dbID in db_writeHandle:
-        bpy.app.handlers.depsgraph_update_pre.remove(db_writeHandle[dbID])
+        # bpy.app.handlers.depsgraph_update_pre.remove(db_writeHandle[dbID])
         db_clientInstances[dbID].release()
         #removing my ID
         db_writeHandle.pop(dbID, None)
         dbID == "off"
+        # for some reason unregister the timer must be at the end of this if condition, 
+        # otherwise the dbID is not removed properly
+        bpy.app.timers.unregister(image_dirty_timer_call)
     
     # store the database ID again inside the settings
     guivars.dbID = dbID
