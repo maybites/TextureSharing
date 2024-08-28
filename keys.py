@@ -9,11 +9,8 @@ def add_streaming_type_ndi(items):
 
 def add_streaming_type_spout(items):
     items.add(("SPOUT", "Spout / Syphon", "Use Spout (for Windows) or Syphon (for OSX) for streaming", "NONE", 0))
+    
 
-# Read-only string property
-def get_server_name(self):
-    data = bpy.context.scene.TEXS_servers
-    return data
 
 class TEXS_PG_image_texshare_streaming_type(bpy.types.PropertyGroup):
     # Define a StringProperty for the filepath
@@ -51,7 +48,7 @@ class TEXS_PG_image_texshare_settings(bpy.types.PropertyGroup):
     )
     texs_server : bpy.props.StringProperty(
         name = "Server", 
-        get=get_server_name
+        default="Unkown"
     )
     texs_image : bpy.props.PointerProperty(
         name="Image", 

@@ -259,7 +259,7 @@ def texshare_receive(self, context):
         db_clientInstances.pop(dbID, None)
         dbID == "off"
 
-        
+
     # store the database ID again inside the settings
     guivars.dbID = dbID
 
@@ -270,6 +270,7 @@ class TEXS_OT_ItemCreate(bpy.types.Operator):
     bl_label = "Create"
 
     type : bpy.props.StringProperty()
+    server: bpy.props.StringProperty()
 
     @classmethod
     def poll(cls, context):
@@ -288,6 +289,7 @@ class TEXS_OT_ItemCreate(bpy.types.Operator):
             new_item.name = "SpoutReceiver"
         if self.type == 'NDI':
             new_item.name = "NDIReceiver"
+        new_item.texs_server = self.server
 
         return {'RUNNING_MODAL'}
 

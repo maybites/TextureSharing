@@ -12,6 +12,11 @@ def _label_multiline(context, text, parent):
     for text_line in text_lines:
         parent.label(text=text_line)
 
+# Read-only string property
+def get_server_name():
+    data = bpy.context.scene.TEXS_servers
+    return data
+
 class CameraButtonsPanel:
     bl_space_type = 'PROPERTIES'
     bl_region_type = 'WINDOW'
@@ -164,7 +169,9 @@ class TEXS_PT_Receiving(bpy.types.Panel):
 
         if selected_server != "OFF":
             gen_create = generate.row(align = True)
-            gen_create.operator("textureshare.createitem", icon='PRESET_NEW', text='Create new texture receiver').type = texture_type.streaming_type
+            create =gen_create.operator("textureshare.createitem", icon='PRESET_NEW', text='Create new texture receiver')
+            create.type = texture_type.streaming_type
+            create.server = get_server_name()
 
 
 classes = (

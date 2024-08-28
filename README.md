@@ -1,4 +1,4 @@
-# Texture sharing addon V6.1.1 for Blender 3.x upwards
+# Texture sharing addon V6.1.2 for Blender 3.x upwards
 
 Blender addon that allows to share textures via [Spout](http://spout.zeal.co/) or [Syphon](https://syphon.github.io/) or [NDI](https://ndi.video) from and to blender.
 
