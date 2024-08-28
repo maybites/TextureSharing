@@ -54,3 +54,10 @@ class FrameBufferSharingClient(ABC):
 		else:
 			from .ndi.NDIReceiver import NDIReceiver
 			return NDIReceiver(name)
+
+	def timer_call(self, guivars):
+		if self.has_new_frame() == True:
+			self.apply_frame_to_image(guivars.texs_image)
+			guivars.texs_image.update_tag()
+		
+		return guivars.refresh_rate / 1000 if guivars.enable == 1 else None

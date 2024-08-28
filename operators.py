@@ -36,7 +36,7 @@ db_frameHandle = {} # the draw handler
 db_drawHandle = {} # the draw handler 
 db_cameraInstances = {} # the server instance
 
-db_writeHandle = {} # the write handler 
+db_writeTimerHandle = {} # the write handler 
 db_clientInstances = {} # the client instance
 
 @dataclass
@@ -66,6 +66,9 @@ def frame_metadata(name, frame_metadata_buffer):
         frame_metadata_buffer.content = json.dumps(fraMeDaPro)
     return handler
 
+""" 
+Obsolete function. can be removed if not needed
+
 def write_frame(fb_client, guivars):
     global needsRedraw
 
@@ -75,7 +78,7 @@ def write_frame(fb_client, guivars):
             needsRedraw = True
     
     return write_frame_handler
-
+ """
 # function for the method the timer thread is calling when it is appropriate
 def image_dirty_timer_call(fb_client, guivars):
 
@@ -204,7 +207,7 @@ def texshare_send(self, context):
           
 # main function called when the share receive 'enable' property is changed
 def texshare_receive(self, context):
-    global db_writeHandle
+    global db_writeTimerHandle
     global db_clientInstances
     
     guivars = self
@@ -213,10 +216,9 @@ def texshare_receive(self, context):
     dbID = guivars.dbID
   
     # if streaming has been enabled and no id has yet been stored in the db
-    if guivars.enable == 1 and dbID not in db_writeHandle:
+    if guivars.enable == 1 and dbID not in db_writeTimerHandle:
         # first we create a unique identifier for the reference db dicts
         dbID = str(uuid.uuid1())
-        updateDraw = False
 
         server = guivars.texs_server
 
@@ -226,35 +228,38 @@ def texshare_receive(self, context):
         fb_client = FrameBufferSharingClient.create(server, stream_type)
         fb_client.setup(fb_directories.get(stream_type).get_servers())
 
-        # create a off screen renderer
-        # offscreen = gpu.types.GPUOffScreen(dWIDTH, dHEIGHT)
+        """ 
+        Obsolete lines. can be removed in future
 
-        # collect all the arguments to pass to the write handler
-        
+        create a off screen renderer
+        offscreen = gpu.types.GPUOffScreen(dWIDTH, dHEIGHT)
+
+        collect all the arguments to pass to the write handler
         write_handler = None
-        # following code is not needed anymore and replace by a simple timer down below
-        # write_handler = write_frame(fb_client, guivars)
-        # bpy.app.handlers.depsgraph_update_pre.append(write_handler)
-        
+        following code is not needed anymore and replace by a simple timer down below
+        write_handler = write_frame(fb_client, guivars)
+        bpy.app.handlers.depsgraph_update_pre.append(write_handler)
+        """        
+
         # register the method to dirty the image
-        bpy.app.timers.register(functools.partial(image_dirty_timer_call, fb_client, guivars))
+        timer_call = functools.partial(fb_client.timer_call, guivars)
+        bpy.app.timers.register(timer_call)
 
         # store the references inside the db-dicts
         #db_frameHandle[dbID] = frameHandler
-        db_writeHandle[dbID] = write_handler
+        db_writeTimerHandle[dbID] = timer_call
         db_clientInstances[dbID] = fb_client
 
     # if streaming has been disabled and my ID is still stored in the db
-    if guivars.enable == 0 and dbID in db_writeHandle:
-        # bpy.app.handlers.depsgraph_update_pre.remove(db_writeHandle[dbID])
+    if guivars.enable == 0 and dbID in db_writeTimerHandle:
+        bpy.app.timers.unregister(db_writeTimerHandle[dbID])
         db_clientInstances[dbID].release()
         #removing my ID
-        db_writeHandle.pop(dbID, None)
+        db_writeTimerHandle.pop(dbID, None)
+        db_clientInstances.pop(dbID, None)
         dbID == "off"
-        # for some reason unregister the timer must be at the end of this if condition, 
-        # otherwise the dbID is not removed properly
-        bpy.app.timers.unregister(image_dirty_timer_call)
-    
+
+        
     # store the database ID again inside the settings
     guivars.dbID = dbID
 
