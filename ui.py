@@ -52,12 +52,15 @@ class TEXS_PT_camera_texshare( CameraButtonsPanel, Panel ):
 
         row = layout.row(align=True)
         row.prop(ob.data, "name", text="Sender name")
-        
+
+        row = layout.row(align=True)
+        row.prop(settings, "backgroundTransparent", text="Transparency")
+
         row = layout.row(align=True)
         row.prop(settings, "applyColorManagmentSettings", text="Apply color managment")
 
         row = layout.row(align=True)
-        row.prop(settings, "isflipped", text="Flip outgoing texture")
+        row.prop(settings, "isflipped", text="Flip texture")
 
         row = layout.row(align=True)
         row.prop(settings, "preview", text="Show Preview")
@@ -92,7 +95,29 @@ class TEXS_PT_Receiving(bpy.types.Panel):
         layout = self.layout
         texture_type = context.scene.TEXS_streaming_type
         
+        generate = layout.column()
+
+        gen_type = generate.row(align=True)
+        gen_type.prop(texture_type, 'streaming_type', text='Type')
+
+        dataSplit = generate.split(factor = 0.7)
+
+        gen_server = dataSplit.column(align = True)
+        gen_server.prop(context.scene, "TEXS_servers", text='')
+
+        gen_refresh = dataSplit.column(align = True)
+        gen_refresh.operator("textureshare.directoryupdate", text='Update').type = texture_type.streaming_type
+
+        selected_server = context.scene.TEXS_servers
+
+        if selected_server != "OFF":
+            gen_create = generate.row(align = True)
+            create =gen_create.operator("textureshare.createitem", icon='PRESET_NEW', text='Create new texture receiver')
+            create.type = texture_type.streaming_type
+            create.server = get_server_name()
+
         col = layout.column()
+
         index = 0
         for item in bpy.context.scene.TEXS_imgs:
             col_box = col.column()
@@ -151,27 +176,6 @@ class TEXS_PT_Receiving(bpy.types.Panel):
                 image_row.active = 0
 
             index = index + 1
-
-        generate = layout.column()
-
-        gen_type = generate.row(align=True)
-        gen_type.prop(texture_type, 'streaming_type', text='Type')
-
-        dataSplit = generate.split(factor = 0.7)
-
-        gen_server = dataSplit.column(align = True)
-        gen_server.prop(context.scene, "TEXS_servers", text='')
-
-        gen_refresh = dataSplit.column(align = True)
-        gen_refresh.operator("textureshare.directoryupdate", text='Update').type = texture_type.streaming_type
-
-        selected_server = context.scene.TEXS_servers
-
-        if selected_server != "OFF":
-            gen_create = generate.row(align = True)
-            create =gen_create.operator("textureshare.createitem", icon='PRESET_NEW', text='Create new texture receiver')
-            create.type = texture_type.streaming_type
-            create.server = get_server_name()
 
 
 classes = (

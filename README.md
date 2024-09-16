@@ -1,4 +1,4 @@
-# Texture sharing addon V6.1.2 for Blender 3.x upwards
+# Texture sharing addon V7.0.0 for Blender 3.x upwards
 
 Blender addon that allows to share textures via [Spout](http://spout.zeal.co/) or [Syphon](https://syphon.github.io/) or [NDI](https://ndi.video) from and to blender.
 
@@ -21,7 +21,7 @@ This works for current Windows (Spout & NDI), Linux (NDI) and OSX (Syphon & NDI)
 - [x] Windows Spout Sender Discovery (only supported from spout version 0.1.0 onward)
 - [x] Windows Spout Receiver (only supported from spout version 0.1.0 onward)
 
-⚠️ If you have already used this addon before - please reinstall the spout python package to get to version 0.1.0 ⚠️
+⚠️ If you have already used this addon before - please reinstall the spout python package to get to version 0.1.0
 
 ### Linux, Windows, OSX
 
@@ -43,7 +43,7 @@ The wheels for Windows and OSX can be found [here](https://github.com/maybites/T
 
 Please make sure you have the most current Blender installed.
 
-1. [Download](https://github.com/maybites/TextureSharing/releases) the addon from the **releases**
+1. Download the [latest master as a zip](https://github.com/maybites/TextureSharing/archive/refs/heads/master.zip)
 
 2. Open Blender > Menu >  Preferences > Add-ons > search for and enable the 'TextureSharing' add-on  
 
@@ -55,7 +55,9 @@ Please make sure you have the most current Blender installed.
 
 6. Once the library is installed, disable and reenable the addon.
 
-7. Save and close preferences.
+7. If the addon doesn't show a successfully loaded python-library, then try restarting blender.
+
+8. Save and close preferences.
 
 ## Usage
 
@@ -70,8 +72,9 @@ The plugin adds a panel to the **Camera** properties called 'Share texture'. The
 ![Panel](./documentation/panel.png)
 
 * The streaming type (NDI, Spout or Syphon)
-* The sender (also known as syphon-server) name is default set to the camera name.
+* The sender (also known as server) name is default set to the camera name.
 * use color management (recommended).
+* render transparent background.
 * vertical flip of the output texture.
 * show preview inside viewport.
 * capture/streaming resolution.
@@ -86,7 +89,7 @@ The plugin adds a panel to the UV-Editor Tools 'Share texture'.
 
 ![Panel](./documentation/receivePanel.png)
 
-* create a new image and name it accordingly (in the above case 'Syphon')
+* create a new image and name it accordingly (in the above case 'Spout')
 * press update to get all available shared textures.
 * select a sender/server
 * press 'create'

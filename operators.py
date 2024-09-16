@@ -111,7 +111,8 @@ def texshare_capture(self, context, camera, object, space, region, scene, layer,
         context.region,
         view_matrix,
         projection_matrix,
-        do_color_management=applyCM)
+        do_color_management=applyCM,
+        draw_background=not guivars.backgroundTransparent)
 
     if showPreview:
         gpu.state.depth_test_set("NONE")

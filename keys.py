@@ -98,7 +98,12 @@ class TEXS_PG_camera_texshare_settings(bpy.types.PropertyGroup):
     isflipped : bpy.props.BoolProperty(
         name = "isflipped",
         default = 0,
-        description = "Inidicates if the texture is flipped when sharing is active"
+        description = "Flippes the outgoing texture when sharing is active"
+    )
+    backgroundTransparent : bpy.props.BoolProperty(
+        name = "backgroundTransparent",
+        default = 1,
+        description = "Renders the background transparent"
     )
     applyColorManagmentSettings : bpy.props.BoolProperty(
         name = "applyColorManagmentSettings",
