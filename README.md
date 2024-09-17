@@ -1,4 +1,4 @@
-# Texture sharing addon V7.0.0 for Blender 3.x upwards
+# Texture sharing addon V7.0.1 for Blender 3.x upwards
 
 Blender addon that allows to share textures via [Spout](http://spout.zeal.co/) or [Syphon](https://syphon.github.io/) or [NDI](https://ndi.video) from and to blender.
 
@@ -74,7 +74,7 @@ The plugin adds a panel to the **Camera** properties called 'Share texture'. The
 * The streaming type (NDI, Spout or Syphon)
 * The sender (also known as server) name is default set to the camera name.
 * use color management (recommended).
-* render transparent background.
+* render transparent background. (⚠️ seems to work only for 'Display in solid mode')
 * vertical flip of the output texture.
 * show preview inside viewport.
 * capture/streaming resolution.

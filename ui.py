@@ -35,8 +35,10 @@ class TEXS_PT_camera_texshare( CameraButtonsPanel, Panel ):
     def draw_header(self, context):
         camera = context.camera
         settings = camera.TEXS_share
-        self.layout.prop(settings, "enable", text="", )
         
+        if settings.streaming_type != '':
+            self.layout.prop(settings, "enable", text="")
+            
     def draw(self, context):
         layout = self.layout
         ob = context.object
@@ -47,38 +49,44 @@ class TEXS_PT_camera_texshare( CameraButtonsPanel, Panel ):
 
         layout.active = 1 - settings.enable
 
-        row = layout.row(align=True)
-        row.prop(settings, "streaming_type", text="Streaming Type")
+ 
+        if settings.streaming_type == '' or settings.streaming_type == None:
+            row = layout.row(align=True)
+            row.label(text='Addon TextureSharing misses libraries', text_ctxt='', translate=True, icon='ERROR', icon_value=0)
+        else:
 
-        row = layout.row(align=True)
-        row.prop(ob.data, "name", text="Sender name")
+            row = layout.row(align=True)
+            row.prop(settings, "streaming_type", text="Streaming Type")
 
-        row = layout.row(align=True)
-        row.prop(settings, "backgroundTransparent", text="Transparency")
+            row = layout.row(align=True)
+            row.prop(ob.data, "name", text="Sender name")
 
-        row = layout.row(align=True)
-        row.prop(settings, "applyColorManagmentSettings", text="Apply color managment")
+            row = layout.row(align=True)
+            row.prop(settings, "backgroundTransparent", text="Transparency")
 
-        row = layout.row(align=True)
-        row.prop(settings, "isflipped", text="Flip texture")
+            row = layout.row(align=True)
+            row.prop(settings, "applyColorManagmentSettings", text="Apply color managment")
 
-        row = layout.row(align=True)
-        row.prop(settings, "preview", text="Show Preview")
+            row = layout.row(align=True)
+            row.prop(settings, "isflipped", text="Flip texture")
 
-        col = layout.column()
+            row = layout.row(align=True)
+            row.prop(settings, "preview", text="Show Preview")
 
-        sub = col.column(align=True)
-        sub.prop(settings, "capture_width", slider=True)
-        sub.prop(settings, "capture_height", slider=True)
+            col = layout.column()
 
-        row = layout.row(align=True)
-        row.prop_search(settings,'workspace',bpy.data,'workspaces',text='Shading')
+            sub = col.column(align=True)
+            sub.prop(settings, "capture_width", slider=True)
+            sub.prop(settings, "capture_height", slider=True)
 
-        col = layout.column()
+            row = layout.row(align=True)
+            row.prop_search(settings,'workspace',bpy.data,'workspaces',text='Shading')
 
-        sub = col.column(align=True)
-        sub.prop_search(settings,'scene',bpy.data,'scenes',text='Scene')
-        sub.prop_search(settings,'layer',bpy.data.scenes[settings.scene],'view_layers',text='Layer')
+            col = layout.column()
+
+            sub = col.column(align=True)
+            sub.prop_search(settings,'scene',bpy.data,'scenes',text='Scene')
+            sub.prop_search(settings,'layer',bpy.data.scenes[settings.scene],'view_layers',text='Layer')
 
             
 #######################################
@@ -97,85 +105,89 @@ class TEXS_PT_Receiving(bpy.types.Panel):
         
         generate = layout.column()
 
-        gen_type = generate.row(align=True)
-        gen_type.prop(texture_type, 'streaming_type', text='Type')
+        if texture_type.streaming_type == '' or texture_type.streaming_type == None:
+            gen_type = generate.row(align=True)
+            gen_type.label(text='Addon TextureSharing misses libraries', text_ctxt='', translate=True, icon='ERROR', icon_value=0)
+        else:
+            gen_type = generate.row(align=True)
+            gen_type.prop(texture_type, 'streaming_type', text='Type')
 
-        dataSplit = generate.split(factor = 0.7)
+            dataSplit = generate.split(factor = 0.7)
 
-        gen_server = dataSplit.column(align = True)
-        gen_server.prop(context.scene, "TEXS_servers", text='')
+            gen_server = dataSplit.column(align = True)
+            gen_server.prop(context.scene, "TEXS_servers", text='')
 
-        gen_refresh = dataSplit.column(align = True)
-        gen_refresh.operator("textureshare.directoryupdate", text='Update').type = texture_type.streaming_type
+            gen_refresh = dataSplit.column(align = True)
+            gen_refresh.operator("textureshare.directoryupdate", text='Update').type = texture_type.streaming_type
 
-        selected_server = context.scene.TEXS_servers
+            selected_server = context.scene.TEXS_servers
 
-        if selected_server != "OFF":
-            gen_create = generate.row(align = True)
-            create =gen_create.operator("textureshare.createitem", icon='PRESET_NEW', text='Create new texture receiver')
-            create.type = texture_type.streaming_type
-            create.server = get_server_name()
+            if selected_server != "OFF":
+                gen_create = generate.row(align = True)
+                create =gen_create.operator("textureshare.createitem", icon='PRESET_NEW', text='Create new texture receiver')
+                create.type = texture_type.streaming_type
+                create.server = get_server_name()
 
-        col = layout.column()
+            col = layout.column()
 
-        index = 0
-        for item in bpy.context.scene.TEXS_imgs:
-            col_box = col.column()
-            box = col_box.box()
-            #box.enabled = not envars.isServerRunning
-            colsub = box.column()
-            row = colsub.row(align=True)
+            index = 0
+            for item in bpy.context.scene.TEXS_imgs:
+                col_box = col.column()
+                box = col_box.box()
+                #box.enabled = not envars.isServerRunning
+                colsub = box.column()
+                row = colsub.row(align=True)
 
-            row.prop(item, "ui_expanded", text = "", 
-                        icon='DISCLOSURE_TRI_DOWN' if item.ui_expanded else 'DISCLOSURE_TRI_RIGHT', 
-                        emboss = False)
+                row.prop(item, "ui_expanded", text = "", 
+                            icon='DISCLOSURE_TRI_DOWN' if item.ui_expanded else 'DISCLOSURE_TRI_RIGHT', 
+                            emboss = False)
 
-            sub1 = row.row()
+                sub1 = row.row()
 
-            if item.texs_server != "OFF" and item.texs_image != None:
-                sub1.prop(item, "enable", text = "", 
-                        icon='CHECKBOX_HLT' if item.enable else 'CHECKBOX_DEHLT', 
-                        emboss = False)
-            
-                sub1.label(icon='IMPORT')
-                sub2 = row.row()
-                sub2.label(text=item.texs_server)
-
-            else:
-                sub2 = row.row()
-                sub2.label(text="image required", icon='ERROR')
-
-                        
-            if not item.enable:
-                subsub = sub2.row(align=True)
-                subsub.operator("textureshare.deleteitem", icon='PANEL_CLOSE', text = "").index = index
-
-            if item.ui_expanded:
-                colsub.active = not item.enable
-                dataColumn = colsub.column(align=True)
-                dataSplit = dataColumn.split(factor = 0.2)
+                if item.texs_server != "OFF" and item.texs_image != None:
+                    sub1.prop(item, "enable", text = "", 
+                            icon='CHECKBOX_HLT' if item.enable else 'CHECKBOX_DEHLT', 
+                            emboss = False)
                 
-                colLabel = dataSplit.column(align = True)
-                colData = dataSplit.column(align = True)
-                           
-                colLabel.label(text='Server')
-                datapath_row = colData.row(align = True)
-                datapath_row.prop(item, 'texs_server',text='')
+                    sub1.label(icon='IMPORT')
+                    sub2 = row.row()
+                    sub2.label(text=item.texs_server)
 
-                colLabel.label(text='Image')
-                image_row = colData.row(align = True)
-                image_row.prop(item, 'texs_image',text='')
+                else:
+                    sub2 = row.row()
+                    sub2.label(text="image required", icon='ERROR')
 
-                colLabel.label(text='Rate')
-                image_row = colData.row(align = True)
-                image_row.prop(item, 'refresh_rate', text='')
+                            
+                if not item.enable:
+                    subsub = sub2.row(align=True)
+                    subsub.operator("textureshare.deleteitem", icon='PANEL_CLOSE', text = "").index = index
 
-                colLabel.label(text='Type')
-                image_row = colData.row(align = True)
-                image_row.prop(item, 'streaming_type', text='')
-                image_row.active = 0
+                if item.ui_expanded:
+                    colsub.active = not item.enable
+                    dataColumn = colsub.column(align=True)
+                    dataSplit = dataColumn.split(factor = 0.2)
+                    
+                    colLabel = dataSplit.column(align = True)
+                    colData = dataSplit.column(align = True)
+                            
+                    colLabel.label(text='Server')
+                    datapath_row = colData.row(align = True)
+                    datapath_row.prop(item, 'texs_server',text='')
 
-            index = index + 1
+                    colLabel.label(text='Image')
+                    image_row = colData.row(align = True)
+                    image_row.prop(item, 'texs_image',text='')
+
+                    colLabel.label(text='Rate')
+                    image_row = colData.row(align = True)
+                    image_row.prop(item, 'refresh_rate', text='')
+
+                    colLabel.label(text='Type')
+                    image_row = colData.row(align = True)
+                    image_row.prop(item, 'streaming_type', text='')
+                    image_row.active = 0
+
+                index = index + 1
 
 
 classes = (
