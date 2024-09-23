@@ -31,11 +31,11 @@ This works for current Windows (Spout & NDI), Linux (NDI) and OSX (Syphon & NDI)
 
 ## Installation
 
-### Requirements
+### Requirements for NDI
 
-If you want to use NDI, donwload and install [NDI SDK](https://ndi.video/download-ndi-sdk/) before you continue intalling the addon.
+* donwload and install [NDI SDK](https://ndi.video/download-ndi-sdk/) before you continue intalling the addon.
 
-For the time beeing you need to have to [build a wheel yourself](https://github.com/buresu/ndi-python#build).
+* [build](https://github.com/buresu/ndi-python#build) a wheel for your system architecture.
 
 ### Steps
 
@@ -47,7 +47,7 @@ Please make sure you have the most current Blender installed.
 
 3. If available, press the button to install the SpoutGL or syphon-python library via pip.
 
-4. For NDI locate the downloaded wheel file for your system architecture.
+4. For NDI locate your built wheel file (see requirements).
 
 5. Press the button to install the NDI library .
 
