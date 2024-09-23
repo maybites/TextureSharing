@@ -35,9 +35,7 @@ This works for current Windows (Spout & NDI), Linux (NDI) and OSX (Syphon & NDI)
 
 If you want to use NDI, donwload and install [NDI SDK](https://ndi.video/download-ndi-sdk/) before you continue intalling the addon.
 
-You also need to download manually the wheel files for your system. 
-
-The wheels for Windows and OSX can be found [here](https://github.com/maybites/TextureSharing/releases/tag/V6.0.0). A Linux variant is available from [here](https://github.com/buresu/ndi-python/issues/31#issuecomment-1551186707) - this is untested, though. All other Linux users have to [build a wheel themself](https://github.com/buresu/ndi-python#build).
+For the time beeing you need to have to [build a wheel yourself](https://github.com/buresu/ndi-python#build).
 
 ### Steps
 
