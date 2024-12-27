@@ -33,7 +33,7 @@ This works for current Windows (Spout & NDI), Linux (NDI) and OSX (Syphon & NDI)
 
 ### Requirements for NDI
 
-* donwload and install [NDI SDK](https://ndi.video/download-ndi-sdk/) before you continue intalling the addon.
+* download and install [NDI SDK](https://ndi.video/download-ndi-sdk/) before you continue intalling the addon.
 
 * [build](https://github.com/buresu/ndi-python#build) a wheel for your system architecture.
 
