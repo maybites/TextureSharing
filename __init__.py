@@ -42,17 +42,14 @@ def register():
     if platform.system() == "Darwin":  
         pip_importer.add_package(pip_importer.Package("syphon-python", version="==0.1.0", custom_module="syphon"))
 
-    pip_importer.add_package(pip_importer.Package("ndi-python", version="==5.1.1.1", custom_module="NDIlib", install_manualy=True))
+    pip_importer.add_package(pip_importer.Package("cyndilib", version="==0.0.5", custom_module="cyndilib"))
 
     # Check required modules availability
     try:
         from . import operators, ui, keys
         for package in pip_importer.pip_packages:
-            if package.module == "NDIlib":
+            if package.module == "cyndilib":
                 if pip_importer.check_module(package):
-                    import NDIlib as ndi
-                    if not ndi.initialize():
-                        return 0        
                     keys.add_streaming_type_ndi(keys.streamingTypeItems)
                     operators.add_streaming_type_ndi(operators.fb_directories)
             else:
@@ -75,12 +72,6 @@ def unregister():
         operators.unregister()
         ui.unregister()
         keys.unregister()
-        # clean up NDI
-        for package in pip_importer.pip_packages:
-            if package.module == "NDIlib":
-                if pip_importer.check_module(package):
-                    import NDIlib as ndi
-                    ndi.destroy()
 
     except Exception as e:
         print("Caught error during cleanup process: {}", e)

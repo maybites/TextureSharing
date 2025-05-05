@@ -1,10 +1,10 @@
 import logging
-from argparse import ArgumentParser, Namespace
 from typing import Optional
 
 import numpy as np
-
-import NDIlib as ndi
+from cyndilib.sender import Sender
+from cyndilib.video_frame import VideoSendFrame
+from cyndilib.wrapper.ndi_structs import FourCC
 
 import gpu
 from gpu_extras.presets import draw_texture_2d
@@ -14,42 +14,86 @@ from ..FrameBufferSharingServer import FrameBufferSharingServer
 class NDIServer(FrameBufferSharingServer):
     def __init__(self, name: str = "NDIServer"):
         super().__init__(name)
-        self.send_settings = None
-        self.ndi_send = None
+        self.sender = None
         self.video_frame = None
-
         self.width = 1920
         self.height = 1080
 
     def setup(self):
-        # setup spout
-
-        self.send_settings  = ndi.SendCreate()
-        self.send_settings.ndi_name = self.name
-
-        self.ndi_send = ndi.send_create(self.send_settings)
-
-        self.video_frame = ndi.VideoFrameV2()
-        self.video_frame.FourCC = ndi.FOURCC_VIDEO_TYPE_RGBX
-        self.video_frame.frame_format_type  = ndi.FRAME_FORMAT_TYPE_PROGRESSIVE
+        # Create sender with the specified name
+        self.sender = Sender(self.name)
+        
+        # Create and configure video frame
+        self.video_frame = VideoSendFrame()
+        self.video_frame.set_fourcc(FourCC.RGBX)
+        self.video_frame.set_resolution(self.width, self.height)
+        
+        # Add video frame to sender
+        self.sender.set_video_frame(self.video_frame)
+        
+        # Pre-allocate bytearray and memoryview for frame data
+        frame_size_bytes = self.video_frame.get_data_size()
+        self.frame_buffer = bytearray(frame_size_bytes)
+        self.frame_view = memoryview(self.frame_buffer)
+        
+        # Start the sender
+        self.sender.__enter__()
 
     def draw_texture(self, offscreen: gpu.types.GPUOffScreen, rect_pos: tuple[int, int], width: int, height: int):
         draw_texture_2d(offscreen.texture_color, rect_pos, width, height)
 
-    def send_texture(self, offscreen:  gpu.types.GPUOffScreen, width: int, height: int, is_flipped: bool = False):
-        # offscreen is type https://docs.blender.org/api/current/gpu.types.html#gpu.types.GPUOffScreen
-        texture = offscreen.texture_color # returns https://docs.blender.org/api/current/gpu.types.html#gpu.types.GPUTexture
+    def send_texture(self, offscreen: gpu.types.GPUOffScreen, width: int, height: int, is_flipped: bool = False):
+        if not self.sender:
+            return
+
+        # Get texture from offscreen
+        texture = offscreen.texture_color
         
+        # Update dimensions if changed
         if (texture.height != self.height or texture.width != self.width):
             self.height = texture.height
             self.width = texture.width
-            self.video_frame.xres = self.width
-            self.video_frame.yres = self.height
+            
+            # Close sender before updating video frame
+            self.sender.__exit__(None, None, None)
+            
+            # Recreate video frame with new dimensions
+            self.video_frame = VideoSendFrame()
+            self.video_frame.set_fourcc(FourCC.RGBX)
+            self.video_frame.set_resolution(self.width, self.height)
+            self.sender.set_video_frame(self.video_frame)
+            
+            # Re-allocate buffer for new size
+            frame_size_bytes = self.video_frame.get_data_size()
+            self.frame_buffer = bytearray(frame_size_bytes)
+            self.frame_view = memoryview(self.frame_buffer)
+            
+            # Reopen sender
+            self.sender.__enter__()
         
-        self.video_frame.data = texture.read()        
-        self.video_frame.line_stride_in_bytes  = self.width * 4
+        # Get texture data and ensure proper format
+        texture_data = texture.read()
         
-        ndi.send_send_video_v2(self.ndi_send, self.video_frame)
+        # Convert to numpy array and ensure correct format
+        # Reshape to match the expected dimensions (height, width, channels)
+        flat = np.array(texture_data, dtype=np.uint8)
+        flat = flat.reshape((self.height, self.width, 4))
+        
+        # If texture is flipped, flip it vertically
+        if is_flipped:
+            flat = np.flipud(flat)
+        
+        # Ensure buffer size matches
+        expected_size = self.width * self.height * 4
+        if flat.size != expected_size:
+            logging.error(f"Buffer size mismatch: got {flat.size}, expected {expected_size}")
+            return
+            
+        # Copy data into memoryview
+        self.frame_view[:] = flat.tobytes()
+        
+        # Send the frame
+        self.sender.write_video_async(self.frame_view)
 
     def can_memory_buffer(self):
         return True
@@ -63,4 +107,5 @@ class NDIServer(FrameBufferSharingServer):
         return
 
     def release(self):
-        ndi.send_destroy(self.ndi_send)
+        if self.sender:
+            self.sender.__exit__(None, None, None)
