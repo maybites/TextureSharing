@@ -25,7 +25,7 @@ class NDIServer(FrameBufferSharingServer):
         
         # Create and configure video frame
         self.video_frame = VideoSendFrame()
-        self.video_frame.set_fourcc(FourCC.RGBX)
+        self.video_frame.set_fourcc(FourCC.RGBA)
         self.video_frame.set_resolution(self.width, self.height)
         
         # Add video frame to sender
@@ -59,7 +59,7 @@ class NDIServer(FrameBufferSharingServer):
             
             # Recreate video frame with new dimensions
             self.video_frame = VideoSendFrame()
-            self.video_frame.set_fourcc(FourCC.RGBX)
+            self.video_frame.set_fourcc(FourCC.RGBA)
             self.video_frame.set_resolution(self.width, self.height)
             self.sender.set_video_frame(self.video_frame)
             
@@ -74,23 +74,26 @@ class NDIServer(FrameBufferSharingServer):
         # Get texture data and ensure proper format
         texture_data = texture.read()
         
+
+        # Safely convert to numpy
+        flat_np = self.safe_buffer_to_numpy(texture_data, self.height, self.width)
+
         # Convert to numpy array and ensure correct format
         # Reshape to match the expected dimensions (height, width, channels)
-        flat = np.array(texture_data, dtype=np.uint8)
-        flat = flat.reshape((self.height, self.width, 4))
+        # flat_np = np.array(texture_data, dtype=np.uint8)
+        # flat_rs = flat_np.reshape((self.width, self.height, 4))
         
         # If texture is flipped, flip it vertically
         if is_flipped:
-            flat = np.flipud(flat)
-        
-        # Ensure buffer size matches
-        expected_size = self.width * self.height * 4
-        if flat.size != expected_size:
-            logging.error(f"Buffer size mismatch: got {flat.size}, expected {expected_size}")
-            return
-            
+            flat_np = np.flipud(flat_np)
+                    
+        # Ensure memory is contiguous in case NDI expects tightly packed buffer
+        flat_as = np.ascontiguousarray(flat_np)
+
+        flat_tobytes = flat_as.tobytes()
+
         # Copy data into memoryview
-        self.frame_view[:] = flat.tobytes()
+        self.frame_view[:] = flat_tobytes
         
         # Send the frame
         self.sender.write_video_async(self.frame_view)
@@ -109,3 +112,25 @@ class NDIServer(FrameBufferSharingServer):
     def release(self):
         if self.sender:
             self.sender.__exit__(None, None, None)
+
+    def safe_buffer_to_numpy(self, buffer, height, width, channels=4, dtype=np.uint8):
+        """
+        Safely converts a 3D gpu.types.Buffer to a NumPy array.
+        
+        Args:
+            buffer: The gpu.types.Buffer object (shape: height x width x channels)
+            height: The height of the image
+            width: The width of the image
+            channels: Number of channels (usually 4 for RGBA)
+            dtype: NumPy data type, usually np.uint8 for UBYTE buffers
+        
+        Returns:
+            np.ndarray of shape (height, width, channels), dtype=dtype
+        """
+        result = np.empty((height, width, channels), dtype=dtype)
+        
+        for y in range(height):
+            for x in range(width):
+                result[y, x] = buffer[y][x]
+
+        return result
