@@ -1,4 +1,4 @@
-# Texture sharing addon V7.0.1 for Blender 3.x upwards
+# Texture sharing addon V8.0.0 for Blender 3.x upwards
 
 Blender addon that allows to share textures via [Spout](http://spout.zeal.co/) or [Syphon](https://syphon.github.io/) or [NDI](https://ndi.video) from and to blender.
 
@@ -31,14 +31,6 @@ This works for current Windows (Spout & NDI), Linux (NDI) and OSX (Syphon & NDI)
 
 ## Installation
 
-### Requirements for NDI
-
-* donwload and install [NDI SDK](https://ndi.video/download-ndi-sdk/) before you continue intalling the addon.
-
-* [build](https://github.com/buresu/ndi-python#build) a wheel for your system architecture.
-
-### Steps
-
 Please make sure you have the most current Blender installed.
 
 1. Download the [latest master as a zip](https://github.com/maybites/TextureSharing/archive/refs/heads/master.zip)
@@ -47,15 +39,13 @@ Please make sure you have the most current Blender installed.
 
 3. If available, press the button to install the SpoutGL or syphon-python library via pip.
 
-4. For NDI locate your built wheel file (see requirements).
+4. Press the button to install the NDI library .
 
-5. Press the button to install the NDI library .
+5. Once the library is installed, disable and reenable the addon.
 
-6. Once the library is installed, disable and reenable the addon.
+6. If the addon doesn't show a successfully loaded python-library, then try restarting blender.
 
-7. If the addon doesn't show a successfully loaded python-library, then try restarting blender.
-
-8. Save and close preferences.
+7. Save and close preferences.
 
 ## Usage
 
@@ -96,13 +86,18 @@ The plugin adds a panel to the UV-Editor Tools 'Share texture'.
 
 The receiver will automatically adjust the image size to the size of the received texture. 
 
-Caveat: With the current implementation the update speed is very low (a few frames a second). 
-Thats because the received texture needs to be copied from the GPU into an image buffer on the CPU.
-For the time beeing I dont see another way to solve this.
-
 ## Issues
 
-When uninstalling a package, blender needs to be restarted to reflect the missing package in the userinterface.
+### Receiver
+
+With the current implementation the update speed is very low (a few frames a second). 
+Thats because the received texture needs to be copied from the GPU into an image buffer on the CPU.
+
+For the time beeing I dont see another way to solve this.
+
+### deinstallation
+
+When desinstalling a package, blender needs to be restarted to reflect the missing package in the userinterface.
 
 ## Credits
 

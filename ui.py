@@ -163,10 +163,11 @@ class TEXS_PT_Receiving(bpy.types.Panel):
                     subsub.operator("textureshare.deleteitem", icon='PANEL_CLOSE', text = "").index = index
 
                 if item.ui_expanded:
-                    colsub.active = not item.enable
                     dataColumn = colsub.column(align=True)
                     dataSplit = dataColumn.split(factor = 0.2)
-                    
+
+                    dataColumn.active = not item.enable
+
                     colLabel = dataSplit.column(align = True)
                     colData = dataSplit.column(align = True)
                             

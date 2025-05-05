@@ -57,13 +57,16 @@ class NDIReceiver(FrameBufferSharingClient):
 		if not self.video_frame:
 			return
 
-		# Get frame data and dimensions
-		norm_texture = (self.video_frame.data.flatten() / 255.0).astype(float)
+		# Get frame dimensions
 		width, height = self.video_frame.get_resolution()
 	
 		# Update image dimensions if needed
 		if (target_image.generated_height != height or target_image.generated_width != width):
 			target_image.scale(width, height)
+
+		# Convert frame data to numpy array and normalize
+		# The VideoFrameSync object supports the buffer protocol directly
+		norm_texture = (np.frombuffer(self.video_frame, dtype=np.uint8) / 255.0).astype(float)
 
 		# Apply frame data
 		target_image.pixels = norm_texture
