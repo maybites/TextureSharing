@@ -73,24 +73,18 @@ class NDIServer(FrameBufferSharingServer):
         
         # Get texture data and ensure proper format
         texture_data = texture.read()
-        
 
-        # Safely convert to numpy
-        flat_np = self.safe_buffer_to_numpy(texture_data, self.height, self.width)
+        lst = texture_data.to_list()
 
         # Convert to numpy array and ensure correct format
-        # Reshape to match the expected dimensions (height, width, channels)
-        # flat_np = np.array(texture_data, dtype=np.uint8)
-        # flat_rs = flat_np.reshape((self.width, self.height, 4))
-        
+        flat_np = np.array(lst, dtype=np.uint8)
+
         # If texture is flipped, flip it vertically
         if is_flipped:
             flat_np = np.flipud(flat_np)
                     
-        # Ensure memory is contiguous in case NDI expects tightly packed buffer
-        flat_as = np.ascontiguousarray(flat_np)
 
-        flat_tobytes = flat_as.tobytes()
+        flat_tobytes = flat_np.tobytes()
 
         # Copy data into memoryview
         self.frame_view[:] = flat_tobytes
@@ -99,7 +93,7 @@ class NDIServer(FrameBufferSharingServer):
         self.sender.write_video_async(self.frame_view)
 
     def can_memory_buffer(self):
-        return True
+        return false
 
     def create_memory_buffer(self, texture_name: str, size: int):
         logging.warning("ndi does not support memory buffer. Could not create memory buffer.")
@@ -112,25 +106,3 @@ class NDIServer(FrameBufferSharingServer):
     def release(self):
         if self.sender:
             self.sender.__exit__(None, None, None)
-
-    def safe_buffer_to_numpy(self, buffer, height, width, channels=4, dtype=np.uint8):
-        """
-        Safely converts a 3D gpu.types.Buffer to a NumPy array.
-        
-        Args:
-            buffer: The gpu.types.Buffer object (shape: height x width x channels)
-            height: The height of the image
-            width: The width of the image
-            channels: Number of channels (usually 4 for RGBA)
-            dtype: NumPy data type, usually np.uint8 for UBYTE buffers
-        
-        Returns:
-            np.ndarray of shape (height, width, channels), dtype=dtype
-        """
-        result = np.empty((height, width, channels), dtype=dtype)
-        
-        for y in range(height):
-            for x in range(width):
-                result[y, x] = buffer[y][x]
-
-        return result
