@@ -4,30 +4,31 @@ Blender addon that allows to share textures via [Spout](http://spout.zeal.co/) o
 
 This works for current Windows (Spout & NDI), Linux (NDI) and OSX (Syphon & NDI).
 
-⚠️ This library is still *in development*.
-
 ## State of Development
 
 ### OSX
 - [x] OSX Syphon Metal Server
 - [x] OSX Syphon OpenGL Server
 - [x] OSX Syphon Server Discovery
-- [x] OSX Syphon Metal Client (blender 4.x upwards) 
+- [x] ⚠️ OSX Syphon Metal Client (blender 4.x upwards) 
 - [ ] OSX Syphon OpenGL Client
 
 ### Windows
 
 - [x] Windows Spout Sender
-- [x] Windows Spout Sender Discovery (only supported from spout version 0.1.0 onward)
-- [x] Windows Spout Receiver (only supported from spout version 0.1.0 onward)
-
-⚠️ If you have already used this addon before - please reinstall the spout python package to get to version 0.1.0
+- [x] Windows Spout Sender Discovery 
+- [x] ⚠️ Windows Spout Receiver 
 
 ### Linux, Windows, OSX
 
-- [x] NDI Sender
+- [x] ⚠️ NDI Sender
 - [x] NDI Sender Discovery
-- [x] NDI Receiver
+- [x] ⚠️ NDI Receiver
+
+### ⚠️ Performance issues
+
+While there is an unresolved technical hurdle that prevents high framerates while receiving frames, 
+NDI Sender's issue should be resolvable and is under investigation.
 
 ## Installation
 
