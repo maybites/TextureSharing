@@ -1,4 +1,4 @@
-# Texture sharing addon V8.0.0 for Blender 3.x upwards
+# Texture sharing addon V8.0.1 for Blender 3.x upwards
 
 Blender addon that allows to share textures via [Spout](http://spout.zeal.co/) or [Syphon](https://syphon.github.io/) or [NDI](https://ndi.video) from and to blender.
 
@@ -21,14 +21,11 @@ This works for current Windows (Spout & NDI), Linux (NDI) and OSX (Syphon & NDI)
 
 ### Linux, Windows, OSX
 
-- [x] ⚠️ NDI Sender
+- [x] NDI Sender
 - [x] NDI Sender Discovery
 - [x] ⚠️ NDI Receiver
 
-### ⚠️ Performance issues
-
-While there is an unresolved technical hurdle that prevents high framerates while receiving frames, 
-NDI Sender's issue should be resolvable and is under investigation.
+⚠️ Performance issues. See below.
 
 ## Installation
 

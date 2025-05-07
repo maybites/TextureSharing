@@ -1,6 +1,5 @@
-from typing import Optional, Any
+from typing import Any
 from cyndilib.receiver import Receiver
-from cyndilib.wrapper.ndi_structs import FourCC
 from cyndilib.wrapper.ndi_recv import RecvColorFormat, RecvBandwidth
 from cyndilib.video_frame import VideoFrameSync
 
