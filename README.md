@@ -89,9 +89,11 @@ The receiver will automatically adjust the image size to the size of the receive
 ### Receiver
 
 With the current implementation the update speed is very low (a few frames a second). 
-Thats because the received texture needs to be copied from the GPU into an image buffer on the CPU.
+Thats because the received texture needs to be copied into an image buffer on the CPU.
 
-For the time beeing I dont see another way to solve this.
+-> https://docs.blender.org/api/current/bpy.types.Image.html#bpy.types.Image.pixels
+
+If anybody knows a more efficient way to do this, please let me know.
 
 ### deinstallation
 
