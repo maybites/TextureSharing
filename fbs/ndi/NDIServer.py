@@ -1,5 +1,4 @@
 import logging
-from typing import Optional
 
 import numpy as np
 from cyndilib.sender import Sender
@@ -14,10 +13,12 @@ from ..FrameBufferSharingServer import FrameBufferSharingServer
 class NDIServer(FrameBufferSharingServer):
     def __init__(self, name: str = "NDIServer"):
         super().__init__(name)
-        self.sender = None
-        self.video_frame = None
-        self.width = 1920
-        self.height = 1080
+        self.sender: Sender | None = None
+        self.video_frame: VideoSendFrame | None = None
+        self.width: int = 1920
+        self.height: int = 1080
+        self.frame_buffer: bytearray | None = None
+        self.frame_view: memoryview | None = None
 
     def setup(self):
         # Create sender with the specified name
@@ -43,7 +44,7 @@ class NDIServer(FrameBufferSharingServer):
         draw_texture_2d(offscreen.texture_color, rect_pos, width, height)
 
     def send_texture(self, offscreen: gpu.types.GPUOffScreen, width: int, height: int, is_flipped: bool = False):
-        if not self.sender:
+        if not self.sender or not self.video_frame or not self.frame_view:
             return
 
         # Get texture from offscreen
@@ -71,29 +72,29 @@ class NDIServer(FrameBufferSharingServer):
             # Reopen sender
             self.sender.__enter__()
         
-        # Get texture data and ensure proper format
+        # Get texture data
         texture_data = texture.read()
 
-        lst = texture_data.to_list()
+        # Convert texture data to numpy array and ensure correct format
+        flat_np = np.asarray(texture_data, dtype=np.uint8).transpose().flatten()
 
-        # Convert to numpy array and ensure correct format
-        flat_np = np.array(lst, dtype=np.uint8)
-
-        # If texture is flipped, flip it vertically
+        # If texture is flipped, flip it vertically while preserving RGBA channels
         if is_flipped:
-            flat_np = np.flipud(flat_np)
-                    
+            # Reshape to (height, width, 4) to maintain RGBA channels
+            flat_np = flat_np.reshape(self.height, self.width, 4)
+            # Flip only the height dimension
+            flat_np = np.flip(flat_np, axis=0)
+            # Flatten back to 1D array
+            flat_np = flat_np.flatten()
 
-        flat_tobytes = flat_np.tobytes()
-
-        # Copy data into memoryview
-        self.frame_view[:] = flat_tobytes
+        # Write data to video frame
+        self.video_frame.write_data(flat_np)
         
         # Send the frame
-        self.sender.write_video_async(self.frame_view)
+        self.sender.send_video_async()
 
     def can_memory_buffer(self):
-        return false
+        return False
 
     def create_memory_buffer(self, texture_name: str, size: int):
         logging.warning("ndi does not support memory buffer. Could not create memory buffer.")
