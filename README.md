@@ -7,25 +7,30 @@ This works for current Windows (Spout & NDI), Linux (NDI) and OSX (Syphon & NDI)
 ## State of Development
 
 ### OSX
-- [x] OSX Syphon Metal Server
-- [x] OSX Syphon OpenGL Server
-- [x] OSX Syphon Server Discovery
-- [x] ⚠️ OSX Syphon Metal Client (blender 4.x upwards) 
-- [ ] OSX Syphon OpenGL Client
+
+✅ OSX Syphon Metal Server
+✅ OSX Syphon OpenGL Server
+✅ OSX Syphon Server Discovery
+⚠️ OSX Syphon Metal Client (blender 4.x upwards) 
+❌ OSX Syphon OpenGL Client (Intel Macs)
 
 ### Windows
 
-- [x] Windows Spout Sender
-- [x] Windows Spout Sender Discovery 
-- [x] ⚠️ Windows Spout Receiver 
+✅ Windows Spout Sender
+✅ Windows Spout Sender Discovery 
+⚠️ Windows Spout Receiver 
 
 ### Linux, Windows, OSX
 
-- [x] NDI Sender
-- [x] NDI Sender Discovery
-- [x] ⚠️ NDI Receiver
+✅ NDI Sender
+✅ NDI Sender Discovery
+⚠️ NDI Receiver
 
-⚠️ Performance issues. See below.
+---
+
+✅ = Works
+⚠️ = Performance issues. See below.
+❌ = not implemented.
 
 ## Installation
 
@@ -35,9 +40,9 @@ Please make sure you have the most current Blender installed.
 
 2. Open Blender > Menu >  Preferences > Add-ons > search for and enable the 'TextureSharing' add-on  
 
-3. If available, press the button to install the SpoutGL or syphon-python library via pip.
+3. Press the button to install the NDI library .
 
-4. Press the button to install the NDI library .
+4. If available, press the button to install the SpoutGL or syphon-python library via pip.
 
 5. Once the library is installed, disable and reenable the addon.
 
