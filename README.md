@@ -8,29 +8,27 @@ This works for current Windows (Spout & NDI), Linux (NDI) and OSX (Syphon & NDI)
 
 ### OSX
 
-✅ OSX Syphon Metal Server
-✅ OSX Syphon OpenGL Server
-✅ OSX Syphon Server Discovery
-⚠️ OSX Syphon Metal Client (blender 4.x upwards) 
-❌ OSX Syphon OpenGL Client (Intel Macs)
+- ✅ OSX Syphon Metal Server
+- ✅ OSX Syphon OpenGL Server
+- ✅ OSX Syphon Server Discovery
+- ⚠️ OSX Syphon Metal Client (blender 4.x upwards) 
+- ❌ OSX Syphon OpenGL Client (Intel Macs)
 
 ### Windows
 
-✅ Windows Spout Sender
-✅ Windows Spout Sender Discovery 
-⚠️ Windows Spout Receiver 
+- ✅ Windows Spout Sender
+- ✅ Windows Spout Sender Discovery 
+- ⚠️ Windows Spout Receiver 
 
 ### Linux, Windows, OSX
 
-✅ NDI Sender
-✅ NDI Sender Discovery
-⚠️ NDI Receiver
+- ✅ NDI Sender
+- ✅ NDI Sender Discovery
+- ⚠️ NDI Receiver
 
 ---
 
-✅ = Works
-⚠️ = Performance issues. See below.
-❌ = not implemented.
+✅ = Works | ⚠️ = Performance issues. See below. | ❌ = not implemented.
 
 ## Installation
 
