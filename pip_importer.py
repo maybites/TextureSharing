@@ -78,9 +78,13 @@ def check_module(package):
 
 
 def get_package_show(package):
+    import os
+    from sys import platform
+
     try:
+        enc = os.device_encoding(1) if platform == "win32" else "utf-8"
         cmd = [PYPATH, "-m", "pip", "show",  package.name]
-        result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding=enc)
         store_package_show(package, result)
     except:
         pass
