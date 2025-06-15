@@ -76,17 +76,35 @@ def check_module(package):
 
     return package._registered  
 
-
 def get_package_show(package):
-    import os
+    import subprocess
+    import locale
     from sys import platform
-
+    
     try:
-        enc = os.device_encoding(1) if platform == "win32" else "utf-8"
-        cmd = [PYPATH, "-m", "pip", "show",  package.name]
-        result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding=enc)
+        # Get the most appropriate encoding
+        if platform == "win32":
+            # Try to get console encoding, fall back to locale encoding
+            import os
+            enc = os.device_encoding(1) or locale.getpreferredencoding() or 'utf-8'
+        else:
+            enc = 'utf-8'
+        
+        cmd = [PYPATH, "-m", "pip", "show", package.name]
+        result = subprocess.run(
+            cmd, 
+            stdout=subprocess.PIPE, 
+            stderr=subprocess.PIPE, 
+            text=True, 
+            encoding=enc,
+            errors='replace'  # Still use replace to prevent crashes
+        )
         store_package_show(package, result)
-    except:
+    except subprocess.SubprocessError:
+        # Handle subprocess-specific errors
+        pass
+    except Exception:
+        # Handle other unexpected errors
         pass
 
 def store_package_show(package, result):
