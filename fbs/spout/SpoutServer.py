@@ -2,20 +2,25 @@ import logging
 from argparse import ArgumentParser, Namespace
 from typing import Optional
 
+import numpy as np
 import SpoutGL
-
-import bgl 
 
 import gpu
 from gpu_extras.presets import draw_texture_2d
 
 from ..FrameBufferSharingServer import FrameBufferSharingServer
 
+# OpenGL constants
+GL_RGBA = 0x1908
+GL_BGRA = 0x80E1
+
 
 class SpoutServer(FrameBufferSharingServer):
     def __init__(self, name: str = "SpoutServer"):
         super().__init__(name)
         self.ctx: Optional[SpoutGL.SpoutSender] = None
+        self.width: int = 1920
+        self.height: int = 1080
 
     def setup(self):
         # setup spout
@@ -25,15 +30,42 @@ class SpoutServer(FrameBufferSharingServer):
     def draw_texture(self, offscreen: gpu.types.GPUOffScreen, rect_pos: tuple[int, int], width: int, height: int):
         draw_texture_2d(offscreen.texture_color, rect_pos, width, height)
 
-    def send_texture(self, offscreen:  gpu.types.GPUOffScreen, width: int, height: int, is_flipped: bool = False):
-        texture = offscreen.color_texture
-
-        success = self.ctx.sendTexture(texture, bgl.GL_TEXTURE_2D, width, height, is_flipped, 0)
-
-        if not success:
-            logging.warning("Could not send spout texture.")
+    def send_texture(self, offscreen: gpu.types.GPUOffScreen, width: int, height: int, is_flipped: bool = False):
+        if not self.ctx:
             return
-
+        
+        # Get texture from offscreen
+        texture = offscreen.texture_color
+        
+        # Update dimensions
+        self.height = texture.height
+        self.width = texture.width
+        
+        # Read texture data
+        texture_data = texture.read()
+        
+        # Convert texture data to numpy array and transpose
+        # This is the correct way to handle Blender's Buffer object
+        flat_np = np.asarray(texture_data, dtype=np.uint8).transpose()
+        
+        # Reshape to image array (height, width, 4)
+        image_array = flat_np.reshape(self.height, self.width, 4)
+        
+        # Flip vertically if needed
+        if is_flipped:
+            image_array = np.flip(image_array, axis=0)
+        
+        # Flatten and make contiguous
+        pixels = np.ascontiguousarray(image_array.flatten())
+        
+        # Send image via SpoutGL
+        success = self.ctx.sendImage(pixels, self.width, self.height, GL_RGBA, False, 0)
+        
+        if not success:
+            logging.warning("Could not send spout image.")
+            return
+        
+        # Indicate that a frame is ready to read
         self.ctx.setFrameSync(self.name)
 
     def can_memory_buffer(self):
@@ -56,4 +88,5 @@ class SpoutServer(FrameBufferSharingServer):
         return
 
     def release(self):
-        self.ctx.releaseSender()
+        if self.ctx:
+            self.ctx.releaseSender()
