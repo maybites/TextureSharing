@@ -1,0 +1,61 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write   # needed to create the Release
+
+jobs:
+  build-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify tag matches bl_info version
+        run: |
+          # Tag like v9.1.0 -> 9.1.0
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          # Extract bl_info "version" : (9, 1, 0) -> 9.1.0
+          BL_VERSION=$(python3 -c '
+          import ast, re, sys
+          src = open("__init__.py", encoding="utf-8").read()
+          m = re.search(r"\"version\"\s*:\s*(\([^)]*\))", src)
+          if not m:
+              sys.exit("Could not find bl_info[\"version\"] in __init__.py")
+          print(".".join(str(n) for n in ast.literal_eval(m.group(1))))
+          ')
+          echo "Tag version:     $TAG_VERSION"
+          echo "bl_info version: $BL_VERSION"
+          if [ "$TAG_VERSION" != "$BL_VERSION" ]; then
+            echo "::error::Tag ($TAG_VERSION) does not match bl_info version ($BL_VERSION). Bump bl_info[\"version\"] in __init__.py before tagging."
+            exit 1
+          fi
+
+      - name: Build addon zip
+        run: |
+          # Stage the addon inside a folder so Blender installs it correctly
+          mkdir -p build/TextureSharing
+          # Copy source files, excluding dev/test cruft
+          rsync -a \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='.vscode' \
+            --exclude='.vs' \
+            --exclude='__pycache__' \
+            --exclude='*.blend' \
+            --exclude='*.blend1' \
+            --exclude='.DS_Store' \
+            --exclude='build' \
+            ./ build/TextureSharing/
+          cd build
+          zip -r "TextureSharing-${GITHUB_REF_NAME}.zip" TextureSharing
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/TextureSharing-${{ github.ref_name }}.zip
+          generate_release_notes: true   # auto changelog from merged PRs/commits

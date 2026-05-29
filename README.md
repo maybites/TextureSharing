@@ -34,9 +34,10 @@ This works for current Windows (Spout & NDI), Linux (NDI) and OSX (Syphon & NDI)
 
 Please make sure you have the most current Blender installed.
 
-1. Download the [latest master as a zip](https://github.com/maybites/TextureSharing/archive/refs/heads/master.zip)
+1. Download the latest release zip from the [**Releases** page](https://github.com/maybites/TextureSharing/releases/latest) (`TextureSharing-vX.Y.Z.zip`).
+   (Alternatively, the bleeding-edge [master as a zip](https://github.com/maybites/TextureSharing/archive/refs/heads/master.zip) — note this is unpackaged source, not a release build.)
 
-2. Open Blender > Menu >  Preferences > Add-ons > search for and enable the 'TextureSharing' add-on  
+2. In Blender > Menu > Preferences > Add-ons > install the downloaded zip via *Install from Disk*, then search for and enable the 'TextureSharing' add-on.
 
 3. Press the button to install the NDI library .
 
@@ -101,6 +102,26 @@ If anybody knows a more efficient way to do this, please let me know.
 ### deinstallation
 
 When desinstalling a package, blender needs to be restarted to reflect the missing package in the userinterface.
+
+## Releasing a new version
+
+Releases are built automatically by GitHub Actions when a version tag is pushed. To cut a release:
+
+1. Bump `bl_info["version"]` in `__init__.py`, e.g. `"version": (9, 1, 0)`.
+2. Commit the change:
+
+   ```bash
+   git commit -am "Release v9.1.0"
+   ```
+
+3. Tag with a matching `vMAJOR.MINOR.PATCH` tag and push:
+
+   ```bash
+   git tag v9.1.0
+   git push origin master --tags
+   ```
+
+The workflow verifies the tag matches `bl_info["version"]` (and fails otherwise), packages the addon as `TextureSharing-vX.Y.Z.zip`, and publishes it on the [Releases page](https://github.com/maybites/TextureSharing/releases) with auto-generated release notes.
 
 ## Credits
 
