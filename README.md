@@ -1,4 +1,6 @@
-# Texture sharing addon V9.0.0 for Blender 5.x upwards
+# Texture sharing addon for Blender 5.x upwards
+
+[![Latest release](https://img.shields.io/github/v/release/maybites/TextureSharing?label=release&sort=semver)](https://github.com/maybites/TextureSharing/releases/latest)
 
 Blender addon that allows to share textures via [Spout](http://spout.zeal.co/) or [Syphon](https://syphon.github.io/) or [NDI](https://ndi.video) from and to blender.
 
