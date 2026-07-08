@@ -65,6 +65,16 @@ def register():
         print(
             "Addon isn't available, install required module via Properties > Addons > TextureSharing"
         )
+    except Exception as e:
+        # Any other failure here (e.g. an outdated dependency raising
+        # AttributeError instead of ModuleNotFoundError) must not leave the
+        # pip_importer classes registered: otherwise the next enable attempt
+        # crashes on "already registered as a subclass" instead of showing
+        # the real underlying error.
+        pip_importer.unregister()
+        print(
+            "TextureSharing failed to start due to an unexpected error: {}".format(e)
+        )
 
 def unregister():
     try:

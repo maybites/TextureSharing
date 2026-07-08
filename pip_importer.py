@@ -30,12 +30,73 @@ class Package:
     _author: str = ""
     _license: str = ""
     _location: str = ""
-    
+    _installed_version: str = ""
+
     @property
     def module(self) -> str:
         if self.custom_module is None:
             return self.name
         return self.custom_module
+
+# comparison operators accepted in a package's version spec (e.g. "==0.1.1"),
+# ordered so that two-character operators are matched before their prefix
+_VERSION_OPERATORS = ("==", "!=", ">=", "<=", "~=", ">", "<")
+
+def _parse_version_spec(spec):
+    spec = spec.strip()
+    for op in _VERSION_OPERATORS:
+        if spec.startswith(op):
+            return op, spec[len(op):].strip()
+    return "==", spec
+
+def _version_key(v):
+    # best-effort numeric parse of a dotted version string, ignoring any
+    # pre/post-release suffixes (e.g. "0.1.1rc1" -> (0, 1, 1))
+    parts = []
+    for chunk in v.split("."):
+        digits = ""
+        for ch in chunk:
+            if ch.isdigit():
+                digits += ch
+            else:
+                break
+        parts.append(int(digits) if digits else 0)
+    return tuple(parts)
+
+def _version_satisfies(installed, spec):
+    # returns whether the installed version string satisfies the package's
+    # required version spec (e.g. "==0.1.1", ">=0.1.0"). An empty spec means
+    # any installed version is acceptable.
+    if not spec:
+        return True
+    if not installed:
+        return False
+
+    op, required = _parse_version_spec(spec)
+    iv, rv = _version_key(installed), _version_key(required)
+
+    if op == "==":
+        return iv == rv
+    if op == "!=":
+        return iv != rv
+    if op == ">=":
+        return iv >= rv
+    if op == "<=":
+        return iv <= rv
+    if op == ">":
+        return iv > rv
+    if op == "<":
+        return iv < rv
+    if op == "~=":
+        return iv >= rv and iv[:-1] == rv[:-1]
+    return iv == rv
+
+def _get_installed_version(package):
+    try:
+        from importlib.metadata import version as pkg_version
+        return pkg_version(package.name)
+    except Exception:
+        return ""
 
 def add_package(package):
     pip_packages.append(package)
@@ -61,7 +122,8 @@ def check_module(package):
         module = sys.modules[package.module]
         if hasattr(module, '__path__'):
             package._location = module.__path__[0]
-            package._registered = True
+            package._installed_version = _get_installed_version(package)
+            package._registered = _version_satisfies(package._installed_version, package.version)
 
     except KeyError:
         package._registered = False
@@ -123,11 +185,12 @@ def store_package_show(package, result):
         package._home_page = data.get('Home-page')
         package._author = data.get('Author')
         package._license = data.get('License')
-        package._location = data.get('Location')  
-        package._registered = True
+        package._location = data.get('Location')
+        package._installed_version = data.get('Version', '')
+        package._registered = _version_satisfies(package._installed_version, package.version)
 
-        return True
-    
+        return package._registered
+
     return False
 
 def check_modules():
@@ -238,7 +301,13 @@ class PiPPreferences(AddonPreferences):
                 ).package_path=package.name
             else:
                 allInstalled = False
-                row.label(text="Not installed", icon="CANCEL")
+                if package._installed_version:
+                    row.label(
+                        text="Outdated ({} -> {})".format(package._installed_version, package.version),
+                        icon="CANCEL",
+                    )
+                else:
+                    row.label(text="Not installed", icon="CANCEL")
                 if package.install_manualy:
                     row.prop(spout_addon_props, 'my_file_path')
                 row.operator(
