@@ -76,7 +76,7 @@ class NDIServer(FrameBufferSharingServer):
         texture_data = texture.read()
 
         # Convert texture data to numpy array and ensure correct format
-        flat_np = np.asarray(texture_data, dtype=np.uint8).transpose()
+        flat_np = np.asarray(texture_data, dtype=np.uint8)
 
         # If texture is flipped, flip it vertically while preserving RGBA channels
         if is_flipped:
