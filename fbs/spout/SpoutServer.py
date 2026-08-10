@@ -44,9 +44,9 @@ class SpoutServer(FrameBufferSharingServer):
         # Read texture data
         texture_data = texture.read()
         
-        # Convert texture data to numpy array and transpose
+        # Convert texture data to numpy array
         # This is the correct way to handle Blender's Buffer object
-        flat_np = np.asarray(texture_data, dtype=np.uint8).transpose()
+        flat_np = np.asarray(texture_data, dtype=np.uint8)
         
         # Reshape to image array (height, width, 4)
         image_array = flat_np.reshape(self.height, self.width, 4)
