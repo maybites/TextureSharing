@@ -44,9 +44,10 @@ class SpoutServer(FrameBufferSharingServer):
         # Read texture data
         texture_data = texture.read()
         
-        # Convert texture data to numpy array
-        # This is the correct way to handle Blender's Buffer object
+        # Blender 5.2 corrected GPU buffer strides (89a0750); transpose legacy layouts only.
         flat_np = np.asarray(texture_data, dtype=np.uint8)
+        if flat_np.strides[-1] != flat_np.itemsize:
+            flat_np = flat_np.transpose()
         
         # Reshape to image array (height, width, 4)
         image_array = flat_np.reshape(self.height, self.width, 4)
