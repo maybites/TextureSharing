@@ -75,8 +75,10 @@ class NDIServer(FrameBufferSharingServer):
         # Get texture data in 3d array
         texture_data = texture.read()
 
-        # Convert texture data to numpy array and ensure correct format
+        # Blender 5.2 corrected GPU buffer strides (89a0750); transpose legacy layouts only.
         flat_np = np.asarray(texture_data, dtype=np.uint8)
+        if flat_np.strides[-1] != flat_np.itemsize:
+            flat_np = flat_np.transpose()
 
         # If texture is flipped, flip it vertically while preserving RGBA channels
         if is_flipped:
@@ -84,7 +86,6 @@ class NDIServer(FrameBufferSharingServer):
             flat_np = flat_np.reshape(self.height, self.width, 4)
             # Flip only the height dimension
             flat_np = np.flip(flat_np, axis=0)
-            # Flatten back to 1D array
     
         # Flatten the array from 3d to 1d
         flat_np = flat_np.flatten()
