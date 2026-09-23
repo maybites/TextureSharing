@@ -51,6 +51,9 @@ class FrameBufferSharingClient(ABC):
 				return SpoutClient(name)
 			else:
 				raise Exception(f"Platform {platform} is not supported!")
+		elif type == "OMT":
+			from .omt.OMTReceiver import OMTReceiver
+			return OMTReceiver(name)
 		else:
 			from .ndi.NDIReceiver import NDIReceiver
 			return NDIReceiver(name)

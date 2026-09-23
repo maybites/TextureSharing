@@ -25,6 +25,11 @@ def add_streaming_type_ndi(dirs):
     dir.setup()
     dirs["NDI"] = dir
 
+def add_streaming_type_omt(dirs):
+    dir =  FrameBufferDirectory.create("OMT_FrameBufferDirectory", "OMT")
+    dir.setup()
+    dirs["OMT"] = dir
+
 def add_streaming_type_spout(dirs):
     dir =  FrameBufferDirectory.create("Spout_FrameBufferDirectory", "SPOUT")
     dir.setup()
@@ -144,7 +149,7 @@ def texshare_send(self, context):
         dHEIGHT = guivars.capture_height
         
         # create a new spout sender instance
-        fbSender = FrameBufferSharingServer.create(context.camera.name, guivars.streaming_type)
+        fbSender = FrameBufferSharingServer.create(context.camera.name, guivars.streaming_type, guivars.steady_stream)
         fbSender.setup()
 
         #if spyphonSender.can_memory_buffer() == True:
@@ -290,6 +295,8 @@ class TEXS_OT_ItemCreate(bpy.types.Operator):
             new_item.name = "SpoutReceiver"
         if self.type == 'NDI':
             new_item.name = "NDIReceiver"
+        if self.type == 'OMT':
+            new_item.name = "OMTReceiver"
         new_item.texs_server = self.server
 
         return {'RUNNING_MODAL'}

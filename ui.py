@@ -73,6 +73,10 @@ class TEXS_PT_camera_texshare( CameraButtonsPanel, Panel ):
             row = layout.row(align=True)
             row.prop(settings, "preview", text="Show Preview")
 
+            if settings.streaming_type in {'NDI', 'OMT'}:
+                row = layout.row(align=True)
+                row.prop(settings, "steady_stream", text="Steady stream")
+
             col = layout.column()
 
             sub = col.column(align=True)

@@ -2,9 +2,9 @@
 
 [![Latest release](https://img.shields.io/github/v/release/maybites/TextureSharing?label=release&sort=semver)](https://github.com/maybites/TextureSharing/releases/latest)
 
-Blender addon that allows to share textures via [Spout](http://spout.zeal.co/) or [Syphon](https://syphon.github.io/) or [NDI](https://ndi.video) from and to blender.
+Blender addon that allows to share textures via [Spout](http://spout.zeal.co/), [Syphon](https://syphon.github.io/), [NDI](https://ndi.video) or [OMT](https://www.openmediatransport.org) from and to blender.
 
-This works for current Windows (Spout & NDI), Linux (NDI) and OSX (Syphon & NDI).
+This works for current Windows (Spout, NDI & OMT), Linux (NDI & OMT) and OSX (Syphon, NDI & OMT).
 
 ## State of Development
 
@@ -28,6 +28,10 @@ This works for current Windows (Spout & NDI), Linux (NDI) and OSX (Syphon & NDI)
 - ✅ NDI Sender Discovery
 - ⚠️ NDI Receiver
 
+- ✅ OMT Sender
+- ✅ OMT Sender Discovery
+- ⚠️ OMT Receiver
+
 ---
 
 ✅ = Works | ⚠️ = Performance issues. See below. | ❌ = not implemented.
@@ -41,7 +45,7 @@ Please make sure you have the most current Blender installed.
 
 2. In Blender > Menu > Preferences > Add-ons > install the downloaded zip via *Install from Disk*, then search for and enable the 'TextureSharing' add-on.
 
-3. Press the button to install the NDI library .
+3. Press the buttons to install the NDI (cyndilib) and OMT (cyomtlib) libraries. On Linux, OMT needs Avahi for discovery, see [OMT on Linux](#omt-on-linux).
 
 4. If available, press the button to install the SpoutGL or syphon-python library via pip.
 
@@ -63,12 +67,13 @@ The plugin adds a panel to the **Camera** properties called 'Share texture'. The
 
 ![Panel](./documentation/panel.png)
 
-* The streaming type (NDI, Spout or Syphon)
+* The streaming type (NDI, Spout, Syphon or OMT)
 * The sender (also known as server) name is default set to the camera name.
 * use color management (recommended).
 * render transparent background. (⚠️ seems to work only for 'Display in solid mode')
 * vertical flip of the output texture.
 * show preview inside viewport.
+* steady stream (NDI and OMT only): keep resending the last frame at the scene frame rate while the viewport is idle. Otherwise a frame is only sent when the viewport redraws.
 * capture/streaming resolution.
 * chose a workspace with the desired render / shading preferences.
 * chose a scene and layer setup to render.
@@ -100,6 +105,12 @@ Thats because the received texture needs to be copied into an image buffer on th
 -> https://docs.blender.org/api/current/bpy.types.Image.html#bpy.types.Image.pixels
 
 If anybody knows a more efficient way to do this, please let me know.
+
+### OMT on Linux
+
+OMT finds senders through Avahi. Install `libavahi-client3` (Debian/Ubuntu) or `avahi-libs` (Fedora/RHEL) and make sure `avahi-daemon` is running.
+
+Without Avahi, Blender can still send over OMT, but no sources are discovered: the receiver list in Blender stays empty, and other applications have to connect to Blender's sender by its `omt://host:port` address.
 
 ### deinstallation
 
@@ -135,6 +146,7 @@ Blender Plugin by Martin Froehlich.
 * Tom Butterworth and Anton Marini for developing [Syphon](https://syphon.github.io/)
 * Jason for the python wrappper [SpoutGL for Python](https://github.com/jlai/Python-SpoutGL) 
 * Florian Bruggisser for the python wrappper [syphon-python](https://github.com/cansik/syphon-python)
+* The [Open Media Transport](https://www.openmediatransport.org) project and the [cyomtlib](https://pypi.org/project/cyomtlib/) python wrapper for OMT
 * Without the valuable [hint](https://docs.blender.org/api/master/gpu.html#rendering-the-3d-view-into-a-texture) from Jonas Dichelle I would still dab in darkness...
 * [CAD_Sketcher](https://github.com/hlorus/CAD_Sketcher) showed me how to dynamically install the needed libraries. Hurray to Opensource!
 

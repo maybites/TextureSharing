@@ -14,9 +14,9 @@
 bl_info = {
     "name" : "TextureSharing",
     "author" : "Martin Froehlich, Florian Bruggisser, Jonathan Chemla",
-    "description" : "Sharing Textures via NDI, Spout or Syphon from Blender",
+    "description" : "Sharing Textures via NDI, OMT, Spout or Syphon from Blender",
     "blender" : (3, 0, 0),
-    "version" : (9, 0, 3),
+    "version" : (9, 1, 0),
     "doc_url" : "https://github.com/maybites/TextureSharing",
     "location" : "Properties > Camera > Camera data",
     "category" : "Render", 
@@ -40,9 +40,10 @@ def register():
         pip_importer.add_package(pip_importer.Package("SpoutGL", version="==0.1.1", custom_module="SpoutGL"))
 
     if platform.system() == "Darwin":  
-        pip_importer.add_package(pip_importer.Package("syphon-python", version="==0.1.0", custom_module="syphon"))
+        pip_importer.add_package(pip_importer.Package("syphon-python", version="==0.1.1", custom_module="syphon"))
 
     pip_importer.add_package(pip_importer.Package("cyndilib", version="==0.0.5", custom_module="cyndilib"))
+    pip_importer.add_package(pip_importer.Package("cyomtlib", version="==0.1.2", custom_module="cyomtlib"))
 
     # Check required modules availability
     try:
@@ -52,6 +53,10 @@ def register():
                 if pip_importer.check_module(package):
                     keys.add_streaming_type_ndi(keys.streamingTypeItems)
                     operators.add_streaming_type_ndi(operators.fb_directories)
+            elif package.module == "cyomtlib":
+                if pip_importer.check_module(package):
+                    keys.add_streaming_type_omt(keys.streamingTypeItems)
+                    operators.add_streaming_type_omt(operators.fb_directories)
             else:
                 if pip_importer.check_module(package):
                     keys.add_streaming_type_spout(keys.streamingTypeItems)

@@ -30,7 +30,7 @@ class FrameBufferSharingServer(ABC):
 		pass
 
 	@staticmethod
-	def create(name: str, type):
+	def create(name: str, type, steady_stream: bool = False):
 		if type == 'SPOUT':
 			if platform.startswith("darwin"):
 				if gpu.platform.backend_type_get() == 'METAL':
@@ -44,6 +44,9 @@ class FrameBufferSharingServer(ABC):
 				return SpoutServer(name)
 			else:
 				raise Exception(f"Platform {platform} is not supported!")
+		elif type == "OMT":
+			from .omt.OMTServer import OMTServer
+			return OMTServer(name, steady_stream)
 		else:
 			from .ndi.NDIServer import NDIServer
-			return NDIServer(name)
+			return NDIServer(name, steady_stream)

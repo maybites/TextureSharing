@@ -54,6 +54,9 @@ class FrameBufferDirectory(ABC):
 				return SpoutDirectory(name)
 			else:
 				raise Exception(f"Platform {platform} is not supported!")
+		elif type == "OMT":
+			from .omt.OMTDirectory import OMTDirectory
+			return OMTDirectory(name)
 		else:
 			from .ndi.NDIDirectory import NDIDirectory
 			return NDIDirectory(name)
