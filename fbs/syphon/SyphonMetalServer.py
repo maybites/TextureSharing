@@ -30,8 +30,8 @@ class SyphonMetalServer(FrameBufferSharingServer):
 
 	def send_texture(self, offscreen:  gpu.types.GPUOffScreen, width: int, height: int, is_flipped: bool = False):
 		texture = offscreen.texture_color
-		if self.texture is None:
-		    # create metal texture
+		if self.texture is None or self.texture.width() != width or self.texture.height() != height:
+			# (re)create metal texture, the capture size may change while streaming
 			self.texture = create_mtl_texture(self.ctx.device, width, height)
 
 		buffer = texture.read()
@@ -48,4 +48,7 @@ class SyphonMetalServer(FrameBufferSharingServer):
 		logging.warning("syphon does not support memory buffer. Could not write memory buffer.")
 
 	def release(self):
-		self.ctx.stop()
+		self.texture = None
+		if self.ctx is not None:
+			self.ctx.stop()
+			self.ctx = None

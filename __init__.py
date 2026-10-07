@@ -16,7 +16,7 @@ bl_info = {
     "author" : "Martin Froehlich, Florian Bruggisser, Jonathan Chemla",
     "description" : "Sharing Textures via NDI, OMT, Spout or Syphon from Blender",
     "blender" : (3, 0, 0),
-    "version" : (9, 1, 0),
+    "version" : (9, 1, 1),
     "doc_url" : "https://github.com/maybites/TextureSharing",
     "location" : "Properties > Camera > Camera data",
     "category" : "Render", 
@@ -40,7 +40,9 @@ def register():
         pip_importer.add_package(pip_importer.Package("SpoutGL", version="==0.1.1", custom_module="SpoutGL"))
 
     if platform.system() == "Darwin":  
-        pip_importer.add_package(pip_importer.Package("syphon-python", version="==0.1.1", custom_module="syphon"))
+        pip_importer.add_package(pip_importer.Package("syphon-python", version="==0.2.0", custom_module="syphon"))
+        # PyOpenGL is an optional extra since syphon-python 0.2.0, needed for the OpenGL backend
+        pip_importer.add_package(pip_importer.Package("PyOpenGL", version=">=3.1.10", custom_module="OpenGL"))
 
     pip_importer.add_package(pip_importer.Package("cyndilib", version="==0.0.5", custom_module="cyndilib"))
     pip_importer.add_package(pip_importer.Package("cyomtlib", version="==0.1.2", custom_module="cyomtlib"))

@@ -48,4 +48,6 @@ class SyphonOpenGLClient(FrameBufferSharingClient):
 		logging.warning("syphon does not support memory buffer. Could not read memory buffer.")
 
 	def release(self):
-		self.ctx.stop()
+		if self.ctx is not None:
+			self.ctx.stop()
+			self.ctx = None

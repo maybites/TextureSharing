@@ -39,4 +39,6 @@ class SyphonOpenGLServer(FrameBufferSharingServer):
 		logging.warning("syphon does not support memory buffer. Could not write memory buffer.")
 
 	def release(self):
-		self.ctx.stop()
+		if self.ctx is not None:
+			self.ctx.stop()
+			self.ctx = None

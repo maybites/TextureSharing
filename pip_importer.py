@@ -8,6 +8,8 @@ import addon_utils
 
 import sys
 import subprocess
+import threading
+import time
 from pathlib import Path
 
 PYPATH = sys.executable
@@ -233,6 +235,102 @@ def ensure_pip():
         return install_pip()
     return True
 
+# pip runs in a worker thread so that Blender's UI stays responsive while
+# packages are installed. The result is picked up on the main thread by a
+# bpy.app.timers poll function, which is the only place touching bpy data.
+class _PipJob:
+    def __init__(self, kind, package, file_path=""):
+        self.kind = kind  # "install" or "uninstall"
+        self.package = package
+        self.file_path = file_path
+        self.step = ""
+        self.ok = False
+        self.error = ""
+        self.done = False
+        self.started = time.time()
+        self.thread = threading.Thread(target=self._run, daemon=True)
+
+    def _run(self):
+        try:
+            if self.kind == "install":
+                self.step = "Preparing pip"
+                if not ensure_pip():
+                    self.error = "PIP is not available and cannot be installed, please install PIP manually"
+                    return
+                self.step = "Installing {}".format(self.package.name)
+                self.ok = install_package(self.package, self.file_path)
+            else:
+                self.step = "Uninstalling {}".format(self.package.name)
+                self.ok = uninstall_package(self.package)
+        except Exception as e:
+            self.error = str(e)
+        finally:
+            self.done = True
+
+_job = None
+# last finished job result as (message, is_error), shown in the preferences
+_last_result = None
+
+def is_busy():
+    return _job is not None
+
+def _redraw_all():
+    try:
+        for window in bpy.context.window_manager.windows:
+            for area in window.screen.areas:
+                area.tag_redraw()
+    except Exception:
+        pass
+
+def start_job(kind, package, file_path=""):
+    # returns False if another job is still running
+    global _job, _last_result
+    if _job is not None:
+        return False
+    _last_result = None
+    _job = _PipJob(kind, package, file_path)
+    _job.thread.start()
+    bpy.context.window_manager.progress_begin(0, 100)
+    bpy.app.timers.register(_poll_job, first_interval=0.25)
+    _redraw_all()
+    return True
+
+def _poll_job():
+    global _job, _last_result, just_imported
+    job = _job
+    if job is None:
+        return None
+
+    wm = bpy.context.window_manager
+    if not job.done:
+        # indeterminate progress indicator in the status bar
+        wm.progress_update(int((time.time() - job.started) * 10) % 100)
+        _redraw_all()
+        return 0.25
+
+    wm.progress_end()
+    package = job.package
+    if job.kind == "install":
+        if job.ok:
+            if check_module(package):
+                _last_result = ("{} successfully installed".format(package.name), False)
+            else:
+                _last_result = ("{} should be available but cannot be found, check the console for details. Try restarting Blender.".format(package.name), True)
+            just_imported = True
+        else:
+            _last_result = (job.error or "Cannot install package: {}".format(package.name), True)
+    else:
+        if job.ok:
+            package._registered = False
+            _last_result = ("{} successfully uninstalled".format(package.name), False)
+        else:
+            _last_result = (job.error or "Cannot uninstall package: {}".format(package.name), True)
+
+    print("pip_importer: " + _last_result[0])
+    _job = None
+    _redraw_all()
+    return None
+
 def get_wheel():
     p = Path(__file__).parent.absolute()
     from sys import platform, version_info
@@ -288,8 +386,19 @@ class PiPPreferences(AddonPreferences):
         # layout.label(text="Ideal setting for usage of texture sharing is: Single pass Anti-Aliasing")
         # layout.prop(system, "viewport_aa")
  
+        if _job is not None:
+            box = layout.box()
+            box.label(
+                text="{}... {}s (Blender stays usable, please wait)".format(_job.step, int(time.time() - _job.started)),
+                icon="TIME",
+            )
+        elif _last_result is not None:
+            box = layout.box()
+            box.label(text=_last_result[0], icon="ERROR" if _last_result[1] else "CHECKMARK")
+
         for package in pip_packages:
             box = layout.box()
+            box.enabled = _job is None
             box.label(text=package.name)
             row = box.row().split(factor=0.2)
             if package._registered:
@@ -315,6 +424,20 @@ class PiPPreferences(AddonPreferences):
                         text="install"
                     ).package_path=package.name
 
+def _start_from_operator(operator, kind, file_path=""):
+    if not operator.package_path:
+        operator.report({"WARNING"}, "Specify package to be {}".format("installed" if kind == "install" else "uninstalled"))
+        return {"CANCELLED"}
+
+    package = {e.name: e for e in pip_packages}[str(operator.package_path)]
+
+    if not start_job(kind, package, file_path):
+        operator.report({"WARNING"}, "Another package operation is still running")
+        return {"CANCELLED"}
+
+    operator.report({"INFO"}, "{} {} in the background...".format("Installing" if kind == "install" else "Uninstalling", package.name))
+    return {"FINISHED"}
+
 # Refresh operator
 class Pip_Update_package(Operator):
     """refresh module from local .whl file or from PyPi"""
@@ -325,25 +448,7 @@ class Pip_Update_package(Operator):
     package_path: bpy.props.StringProperty(subtype="FILE_PATH")
 
     def execute(self, context):
-        scene = context.scene
-        spout_addon_props = scene.spout_addon_props
-
-        package = {e.name: e for e in pip_packages}[str(self.package_path)]
-
-        if not self.package_path:
-            self.report({"WARNING"}, "Specify package to be installed")
-            return {"CANCELLED"}
-
-        if install_package(package, spout_addon_props.my_file_path):
-            self.report({"INFO"}, "Testing Package {} import..".format(package.module))
-            if check_module(package):
-                self.report({"INFO"}, "Package successfully installed")
-            else:
-                self.report({"WARNING"}, "Package should be available but cannot be found, check console for detailed info. Try restarting blender, otherwise get in contact.")
-        else:
-            self.report({"WARNING"}, "Cannot install package: {}".format(self.package_path))
-            return {"CANCELLED"}
-        return {"FINISHED"}
+        return _start_from_operator(self, "install", context.scene.spout_addon_props.my_file_path)
 
 # Uninstall operator
 class Pip_Uninstall_package(Operator):
@@ -355,19 +460,7 @@ class Pip_Uninstall_package(Operator):
     package_path: bpy.props.StringProperty(subtype="FILE_PATH")
 
     def execute(self, context):
-        package = {e.name: e for e in pip_packages}[str(self.package_path)]
-
-        if not self.package_path:
-            self.report({"WARNING"}, "Specify package to be uninstalled")
-            return {"CANCELLED"}
-
-        if uninstall_package(package):
-            package._registered = False
-            self.report({"INFO"}, "Package successfully uninstalled")
-        else:
-            self.report({"WARNING"}, "Cannot uninstall package: {}".format(self.package_path))
-            return {"CANCELLED"}
-        return {"FINISHED"}
+        return _start_from_operator(self, "uninstall")
 
 
 # installation operator
@@ -380,31 +473,7 @@ class Pip_Install_packages(Operator):
     package_path: bpy.props.StringProperty(subtype="FILE_PATH")
 
     def execute(self, context):
-        scene = context.scene
-        spout_addon_props = scene.spout_addon_props
-    
-        if not ensure_pip():
-            self.report(
-                {"WARNING"},
-                "PIP is not available and cannot be installed, please install PIP manually",
-            )
-            return {"CANCELLED"}
-
-        package = {e.name: e for e in pip_packages}[str(self.package_path)]
-
-        if install_package(package, spout_addon_props.my_file_path):
-            self.report({"INFO"}, "Testing Package {} import..".format(package.module))
-            if check_module(package):
-                self.report({"INFO"}, "Package successfully installed")
-            else:
-                self.report({"WARNING"}, "Package should be available but cannot be found, check console for detailed info. Try restarting blender, otherwise get in contact.")
-        else:
-            self.report({"WARNING"}, "Cannot install package: {}".format(self.package_path))
-        
-        global just_imported
-        just_imported = True
-
-        return {"FINISHED"}
+        return _start_from_operator(self, "install", context.scene.spout_addon_props.my_file_path)
 
 class SpoutAddonProperties(bpy.types.PropertyGroup):
     # Define a StringProperty for the filepath
@@ -429,8 +498,10 @@ def register():
     global pip_packages
     pip_packages.clear()
 
-    global just_imported
+    global just_imported, _job, _last_result
     just_imported = False
+    _job = None
+    _last_result = None
 
     from bpy.utils import register_class
     for cls in classes:
